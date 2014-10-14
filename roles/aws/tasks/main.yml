@@ -1,22 +1,26 @@
-# - name: Provison VPC
-#   local_action:
-#     module: ec2_vpc
-#     state: present
-#     cidr_block: 172.18.0.0/15
-#     subnets:
-#       - cidr: 172.18.0.0/16
-#         az: us-east-1a
-#       - cidr: 172.19.0.0/16
-#         az: us-east-1a
-#     region: us-east-1
-#     wait: yes
-#   register: vpc
-
-# - debug: var=vpc
-
-- name: remove key pair
+- name: Provison VPC
   local_action:
-    module: ec2_key
-    region: us-east-1
-    name: pboros
-    state: absent
+    module: ec2_vpc
+    state: present
+    cidr_block: 10.10.0.0/16
+    resource_tags: { "Environment":"Load Test" }
+    internet_gateway: True
+    subnets:
+      # management network
+      - cidr: 10.10.10.0/24
+        az: us-west-2c
+      # instance tunnels
+      - cidr: 10.10.20.0/24
+        az: us-west-2c
+    route_tables:
+      - subnets:
+          - 10.10.10.0/24
+          - 10.10.20.0/24
+        routes:
+          - dest: 0.0.0.0/0
+            gw: igw
+    region: us-west-2
+    wait: yes
+  register: vpc
+
+- debug: var=vpc
