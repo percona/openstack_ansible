@@ -6,21 +6,64 @@
     resource_tags: { "Environment":"Load Test" }
     internet_gateway: True
     subnets:
-      # management network
       - cidr: 10.10.10.0/24
-        az: us-west-2c
-      # instance tunnels
-      - cidr: 10.10.20.0/24
-        az: us-west-2c
+        az: "{{ aws_region }}c"
     route_tables:
       - subnets:
           - 10.10.10.0/24
-          - 10.10.20.0/24
         routes:
           - dest: 0.0.0.0/0
             gw: igw
-    region: us-west-2
+    region: "{{ aws_region }}"
     wait: yes
   register: vpc
 
+- name: Provision SG
+  local_action:
+        module: ec2_group
+        state: present
+        name: "loadtest"
+        description: "allow ssh"
+        vpc_id: "{{ vpc.vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+
+- name: Provision EC2 instances - zone 1
+  local_action:
+        module: ec2
+        state: present
+# id: "{{ aws_region }}.{{ aws_instanceType }}.01"
+        region: "{{ aws_region }}"
+        keypair: "{{ aws_keypair }}"
+        group: "loadtest"
+        instance_type: "{{ aws_instanceType }}"
+        image: "{{ aws_image }}"
+        count: 1
+        vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+        assign_public_ip: True
+        # TODO: wait until instance is ready!
+        wait: yes
+  with_sequence: count=3
+  # TODO: register instance + idempotent instances
+
+- name: Provision EC2 instances - zone 1
+  local_action:
+        module: ec2
+        state: present
+        region: "{{ aws_region }}"
+        keypair: "{{ aws_keypair }}"
+        group: "loadtest"
+        instance_type: "{{ aws_instanceType }}"
+        image: "{{ aws_image }}"
+        count: 1
+        vpc_subnet_id: "{{ item.id }}"
+        assign_public_ip: True
+        wait: yes
+  register: ec2_instances_zone1
+  with_items: vpc.subnets
+  when: item.cidr == '10.10.10.0/24'
 - debug: var=vpc
