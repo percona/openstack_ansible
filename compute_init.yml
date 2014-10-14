@@ -1,0 +1,6 @@
+---
+- hosts: compute
+  roles:
+    - common
+    - compute_init
+

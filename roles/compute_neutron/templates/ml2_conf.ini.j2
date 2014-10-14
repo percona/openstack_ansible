@@ -1,0 +1,16 @@
+[ml2]
+type_drivers = gre
+tenant_network_types = gre
+mechanism_drivers = openvswitch
+[ml2_type_flat]
+[ml2_type_vlan]
+[ml2_type_gre]
+tunnel_id_ranges = 1:1000
+[ovs]
+local_ip = {{ ansible_eth1.ipv4.address }}
+tunnel_type = gre
+enable_tunneling = True
+[ml2_type_vxlan]
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True

@@ -1,0 +1,71 @@
+---
+
+- name: glance package
+  apt: pkg={{ item }} state=installed
+  tags: glance
+  with_items:
+    - glance
+    - python-glanceclient
+
+- name: remove old sqlite db file
+  file: path=/var/lib/glance/glance.sqlite state=absent
+
+- name: create glance database
+  mysql_db: name=glance state=present
+
+- name: glance user from 127.0.0.1
+  mysql_user: name=glance password={{ GLANCE_DBPASS }} host='127.0.0.1' priv=glance.*:ALL state=present
+
+- name: glance user from localhost
+  mysql_user: name=glance password={{ GLANCE_DBPASS }} host='localhost' priv=glance.*:ALL state=present
+
+- name: glance user from %
+  mysql_user: name=glance password={{ GLANCE_DBPASS }} host='%' priv=glance.*:ALL state=present
+
+- name: write the glance-api config file
+  template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf owner=root group=root mode=0644
+  notify:
+    - restart glance-api
+
+- name: write the glance-registry config file
+  template: src=glance-registry.conf.j2 dest=/etc/glance/glance-registry.conf owner=root group=root mode=0644
+  notify:
+    - restart glance-registry
+
+- name: glance db_sync
+  shell: su -s /bin/sh -c "glance-manage db_sync" glance
+
+- name: get keystone users
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create glance user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=glance --pass={{ GLANCE_PASS }} --email glance@localhost
+  when: keystone_user_list_result.stdout.find('glance') == -1
+
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: create glance keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=glance --type=image --description="OpenStack Image Service"
+  when: keystone_service_list_result.stdout.find('glance') == -1
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: get keystone role return value (glance)
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=glance --tenant=service --role=admin
+  ignore_errors: true
+
+- name: get keystone glance service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ image / {print $2}'
+  register: keystone_glance_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_glance_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:9292 --internalurl=http://{{ ansible_hostname }}:9292 --adminurl=http://{{ ansible_hostname }}:9292
+  when: keystone_endpoint_list_result.stdout.find(keystone_glance_service_id.stdout) == -1
+  notify:
+    - restart glance-api
+    - restart glance-registry

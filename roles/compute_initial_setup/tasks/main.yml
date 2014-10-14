@@ -1,0 +1,5 @@
+- name: set mtu 1700 for interfaces
+  shell: ifconfig {{ item }} mtu 1700
+  with_items:
+    - eth0
+    - eth1

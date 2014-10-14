@@ -1,0 +1,56 @@
+- name: neutron compute node packages
+  apt: pkg={{ item }} state=installed
+  tags: packages
+  with_items:
+    - neutron-plugin-ml2 
+    - neutron-plugin-openvswitch-agent 
+    - neutron-common
+
+- name: nova compute node packages
+  apt: pkg={{ item }} state=installed
+  tags: packages
+  with_items:
+    - nova-compute-qemu
+    - python-guestfs
+
+- name: get the kernel stat
+  shell: stat -c %a /boot/vmlinuz-$(uname -r)
+  register: kernel_stat
+  
+- name: set the kernel access
+  shell: dpkg-statoverride  --update --add root root 0644 /boot/vmlinuz-$(uname -r)
+  when: kernel_stat.stdout.find('644') == -1 
+
+- name: update future kernel access mode
+  copy: src=statoverride dest=/etc/kernel/postinst.d/statoverride owner=root group=root mode=0744
+  
+- name: write the neutron config file
+  template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf owner=root group=root mode=0644
+  notify:
+    - restart openvswitch-switch
+    - restart neutron-plugin-openvswitch-agent
+
+- name: write the nova config file
+  template: src=nova.conf.j2 dest=/etc/nova/nova.conf owner=root group=root mode=0644
+  notify:
+    - restart nova-compute
+    - restart neutron-plugin-openvswitch-agent
+
+- name: write the ml2 config file
+  template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini owner=root group=root mode=0644
+  notify:
+    - restart openvswitch-switch
+    
+- name: get the list of ovs bridges
+  shell: ovs-vsctl list-br
+  register: ovs_bridges_list
+
+- name: create ovs br-int bridge
+  shell: ovs-vsctl add-br br-int
+  when: ovs_bridges_list.stdout.find('br-int') == -1
+
+- name: remove gro from the private network
+  shell: ethtool -K eth1 gro off
+
+- name: remove old sqlite db file
+  file: path=/var/lib/nova/nova.sqlite state=absent

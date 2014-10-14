@@ -1,0 +1,42 @@
+[DEFAULT]
+
+verbose=True
+logdir=/var/log/nova
+state_path=/var/lib/nova
+lock_path=/var/lock/nova
+
+rpc_backend = rabbit
+rabbit_host = {{ ansible_hostname }}
+rabbit_password = {{ RABBIT_PASS }}
+
+my_ip = {{ ansible_eth0.ipv4.address }}
+vncserver_listen = {{ ansible_eth0.ipv4.address }}
+vncserver_proxyclient_address = {{ ansible_eth0.ipv4.address }}
+
+auth_strategy = keystone
+
+network_api_class = nova.network.neutronv2.api.API
+neutron_url = http://{{ ansible_hostname }}:9696
+neutron_auth_strategy = keystone
+neutron_admin_tenant_name = service
+neutron_admin_username = neutron
+neutron_admin_password = {{ NEUTRON_PASS }}
+neutron_admin_auth_url = http://{{ ansible_hostname }}:35357/v2.0
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+security_group_api = neutron
+
+service_neutron_metadata_proxy = true
+neutron_metadata_proxy_shared_secret = {{ METADATA_SECRET }}
+
+[database]
+connection = mysql://nova:{{ NOVA_DBPASS }}@{{ ansible_hostname }}/nova
+
+[keystone_authtoken]
+auth_uri = http://{{ ansible_hostname }}:5000
+auth_host = {{ ansible_hostname }}
+auth_port = 35357
+auth_protocol = http
+admin_tenant_name = service
+admin_user = nova
+admin_password = {{ NOVA_PASS }}

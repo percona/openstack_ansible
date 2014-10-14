@@ -1,0 +1,8 @@
+[DEFAULT]
+auth_url = http://controller:5000/v2.0
+auth_region = regionOne
+admin_tenant_name = service
+admin_user = neutron
+admin_password = {{ NEUTRON_PASS }}
+nova_metadata_ip = controller
+metadata_proxy_shared_secret = {{ METADATA_SECRET }}

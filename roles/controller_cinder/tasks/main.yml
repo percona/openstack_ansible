@@ -1,0 +1,74 @@
+- name: cinder controller node packages
+  apt: pkg={{ item }} state=installed
+  tags: packages
+  with_items:
+    - cinder-api
+    - cinder-scheduler
+
+- name: write the cinder config file
+  template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf owner=root group=root mode=0644
+
+- name: create cinder database
+  mysql_db: name=cinder state=present
+
+- name: cinder user from 127.0.0.1
+  mysql_user: name=cinder password={{ CINDER_DBPASS }} host='127.0.0.1' priv=cinder.*:ALL state=present
+
+- name: cinder user from localhost
+  mysql_user: name=cinder password={{ CINDER_DBPASS }} host='localhost' priv=cinder.*:ALL state=present
+
+- name: cinder user from %
+  mysql_user: name=cinder password={{ CINDER_DBPASS }} host='%' priv=cinder.*:ALL state=present
+
+- name: cinder db sync
+  shell: su -s /bin/sh -c "cinder-manage db sync" cinder
+
+- name: get keystone users
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create keystone user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=cinder --pass={{ CINDER_PASS }} --email cinder@localhost
+  when: keystone_user_list_result.stdout.find('cinder') == -1
+  
+- name: get keystone role return value (cinder)
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=cinder --tenant=service --role=admin
+  ignore_errors: true
+
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: create cinder keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=cinder --type=volume --description="OpenStack Block Storage"
+  when: keystone_service_list_result.stdout.find('cinder') == -1
+
+- name: create cinderv2 service
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=cinderv2 --type=volumev2 --description="Openstack Block Storage v2"
+  when: keystone_service_list_result.stdout.find('cinderv2') == -1
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: get keystone cinder service id
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ volume / {print $2}'
+  register: keystone_cinder_service_id
+
+- name: get keystone cinderv2 service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ volumev2 / {print $2}'
+  register: keystone_cinderv2_service_id
+
+- name: create keystone endpoint for cinder
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_cinder_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8776/v1/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8776/v1/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8776/v1/%\(tenant_id\)s
+  when: keystone_endpoint_list_result.stdout.find(keystone_cinder_service_id.stdout) == -1
+  notify:
+    - restart cinder-api
+    - restart cinder-scheduler
+
+- name: create keystone endpoint for cinderv2
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_cinderv2_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8776/v2/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8776/v2/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8776/v2/%\(tenant_id\)s
+  when: keystone_endpoint_list_result.stdout.find(keystone_cinderv2_service_id.stdout) == -1
+  notify:
+    - restart cinder-api
+    - restart cinder-scheduler

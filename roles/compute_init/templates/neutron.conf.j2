@@ -1,0 +1,33 @@
+[DEFAULT]
+
+state_path = /var/lib/neutron
+lock_path = $state_path/lock
+notification_driver = neutron.openstack.common.notifier.rpc_notifier
+
+auth_strategy = keystone
+rpc_backend = neutron.openstack.common.rpc.impl_kombu
+rabbit_host = controller
+rabbit_password = {{ RABBIT_PASS }}
+core_plugin = ml2
+service_plugins = router
+allow_overlapping_ips = True
+
+[quotas]
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[keystone_authtoken]
+auth_uri = http://controller:5000
+auth_host = controller
+auth_protocol = http
+auth_port = 35357
+admin_tenant_name = service
+admin_user = neutron
+admin_password = {{ NEUTRON_PASS }}
+signing_dir = $state_path/keystone-signing
+
+[database]
+
+[service_providers]
+service_provider=LOADBALANCER:Haproxy:neutron.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
+service_provider=VPN:openswan:neutron.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default

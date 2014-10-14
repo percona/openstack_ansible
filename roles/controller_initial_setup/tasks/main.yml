@@ -1,0 +1,35 @@
+- name: get initial glance image
+  shell: wget -O /var/tmp/cirros-0.3.2-x86_64-disk.img http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img
+  args:
+    creates: /var/tmp/cirros-0.3.2-x86_64-disk.img
+
+- name: check for cirros image in glance
+  shell: . /root/.openstack_admin.rc ; glance image-list | grep cirros-0.3.2-x86_64
+  register: glance_image_list_out
+  ignore_errors: true
+
+- name: create glance cirros image
+  shell: . /root/.openstack_admin.rc ; glance image-create --name "cirros-0.3.2-x86_64" --file /var/tmp/cirros-0.3.2-x86_64-disk.img --disk-format qcow2 --container-format bare --is-public True
+  when: glance_image_list_out.rc != 0
+
+- name: check for ssh keypair
+  shell: . /root/.openstack_demo.rc ; nova keypair-list | grep demo-key
+  register: nova_keypair_list_out
+  ignore_errors: true
+
+- name: add keypair as demo-key
+  shell: . /root/.openstack_demo.rc ; nova keypair-add --pub-key /root/.ssh/authorized_keys demo-key
+  when: nova_keypair_list_out.rc != 0
+
+- name: allow icmp in default security group
+  shell: . /root/.openstack_demo.rc ; nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+  ignore_errors: true
+
+- name: allow ssh in default security group
+  shell: . /root/.openstack_demo.rc ; nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+  ignore_errors: true
+
+- name: set mtu 1700 for interfaces
+  shell: ifconfig {{ item }} mtu 1700
+  with_items:
+    - eth0

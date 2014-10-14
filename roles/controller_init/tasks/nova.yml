@@ -1,0 +1,66 @@
+- name: nova package
+  apt: pkg={{ item }} state=installed
+  tags: nova
+  with_items:
+    - nova-api
+    - nova-cert
+    - nova-conductor
+    - nova-consoleauth
+    - nova-novncproxy
+    - nova-scheduler
+    - python-novaclient
+
+- name: remove old sqlite db file
+  file: path=/var/lib/nova/nova.sqlite state=absent
+  
+- name: write the nova config file
+  template: src=nova.conf.j2 dest=/etc/nova/nova.conf owner=root group=root mode=0644
+  notify: restart nova-all
+
+- name: create nova database
+  mysql_db: name=nova state=present
+
+- name: nova user from 127.0.0.1
+  mysql_user: name=nova password={{ NOVA_DBPASS }} host='127.0.0.1' priv=nova.*:ALL state=present
+
+- name: nova user from localhost
+  mysql_user: name=nova password={{ NOVA_DBPASS }} host='localhost' priv=nova.*:ALL state=present
+
+- name: nova user from %
+  mysql_user: name=nova password={{ NOVA_DBPASS }} host='%' priv=nova.*:ALL state=present
+
+- name: nova db sync
+  shell: su -s /bin/sh -c "nova-manage db sync" nova
+
+- name: get keystone users
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create nova user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=nova --pass={{ NOVA_PASS }} --email nova@localhost
+  when: keystone_user_list_result.stdout.find('nova') == -1
+  
+- name: get keystone role return value (nova)
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=nova --tenant=service --role=admin
+  ignore_errors: true
+
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: create nova keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=nova --type=compute --description="OpenStack Compute"
+  when: keystone_service_list_result.stdout.find('nova') == -1
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: get keystone nova service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ compute / {print $2}'
+  register: keystone_nova_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_nova_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s
+  when: keystone_endpoint_list_result.stdout.find(keystone_nova_service_id.stdout) == -1
+  notify: restart nova-all

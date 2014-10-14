@@ -1,0 +1,18 @@
+---
+
+#handlers for network node
+
+- name: restart neutron-plugin-openvswitch-agent
+  service: name=neutron-plugin-openvswitch-agent state=restarted
+  
+- name: restart neutron-l3-agent
+  service: name=neutron-l3-agent state=restarted
+  
+- name: restart neutron-dhcp-agent
+  service: name=neutron-dhcp-agent state=restarted
+  
+- name: restart neutron-metadata-agent
+  service: name=neutron-metadata-agent state=restarted
+
+- name: restart openvswitch-switch
+  service: name=openvswitch-switch state=restarted

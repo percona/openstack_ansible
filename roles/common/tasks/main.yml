@@ -1,0 +1,31 @@
+---
+# file: roles/common/tasks/main.yml
+
+- name: be sure ntp is installed
+  apt: pkg=ntp state=installed
+  tags: ntp
+
+- name: be sure ntpd is running and enabled
+  service: name=ntp state=running enabled=yes
+  tags: ntp
+
+- name: set /etc/hosts
+  lineinfile: dest=/etc/hosts regexp='.*{{ hostvars[item].ansible_hostname }}$' line="{{ hostvars[item].ansible_eth0.ipv4.address }} {{ hostvars[item].ansible_hostname }}" state=present
+  when: hostvars[item].ansible_eth0.ipv4.address is defined
+  with_items: groups['all']
+
+# All passwords
+- include_vars: group_vars/openstack_password.yml
+
+# Site variables
+- include_vars: group_vars/site_def.yml
+
+# required packages
+- name: python-mysqldb package
+  apt: pkg=python-mysqldb state=installed
+  tags: python-mysqldb
+  
+- name: python-software-properties package
+  apt: pkg=python-software-properties state=installed
+  tags: python-software-properties
+  

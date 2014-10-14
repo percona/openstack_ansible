@@ -1,0 +1,75 @@
+- name: install heat packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - heat-api 
+  - heat-api-cfn 
+  - heat-engine
+
+- name: create heat database
+  mysql_db: name=heat state=present
+
+- name: heat user from 127.0.0.1
+  mysql_user: name=heat password={{ HEAT_DBPASS }} host='127.0.0.1' priv=heat.*:ALL state=present
+
+- name: heat user from localhost
+  mysql_user: name=heat password={{ HEAT_DBPASS }} host='localhost' priv=heat.*:ALL state=present
+
+- name: heat user from %
+  mysql_user: name=heat password={{ HEAT_DBPASS }} host='%' priv=heat.*:ALL state=present
+
+- name: remove old sqlite db file
+  file: path=/var/lib/heat/heat.sqlite state=absent
+
+- name: generate heat configugration
+  template: src=heat.conf.j2 dest=/etc/heat/heat.conf owner=root group=root mode=0644
+
+- name: heat db sync
+  shell: su -s /bin/sh -c "heat-manage db_sync" heat
+
+- name: get keystone users
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create heat user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=heat --pass={{ HEAT_PASS }} --email heat@localhost
+  when: keystone_user_list_result.stdout.find('heat') == -1
+
+- name: get keystone role return value (heat)
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=heat --tenant=service --role=admin
+  ignore_errors: true
+
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: create heat keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=heat --type=orchestration --description="Orchestration"
+  when: keystone_service_list_result.stdout.find('heat') == -1
+
+- name: create heat-cfn keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=heat-cfn --type=cloudformation --description="Orchestration CloudFormation"
+  when: keystone_service_list_result.stdout.find('heat-cfn') == -1
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: get keystone heat service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ orchestration / {print $2}'
+  register: keystone_heat_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_heat_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8004/v1/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8004/v1/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8004/v1/%\(tenant_id\)s
+  when: keystone_endpoint_list_result.stdout.find(keystone_heat_service_id.stdout) == -1
+
+- name: get keystone heat-cfn service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ cloudformation / {print $2}'
+  register: keystone_heat_cfn_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_heat_cfn_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8000/v1 --internalurl=http://{{ ansible_hostname }}:8000/v1 --adminurl=http://{{ ansible_hostname }}:8000/v1
+  when: keystone_endpoint_list_result.stdout.find(keystone_heat_cfn_service_id.stdout) == -1
+  notify:
+    - restart heat-api
+    - restart heat-api-cfn
+    - restart heat-engine

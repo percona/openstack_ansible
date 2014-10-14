@@ -1,0 +1,19 @@
+- name: nova compute node packages
+  apt: pkg={{ item }} state=installed
+  tags: packages
+  with_items:
+    - nova-compute-qemu
+    - python-guestfs
+
+- name: write the nova config file
+  template: src=nova.conf.j2 dest=/etc/nova/nova.conf owner=root group=root mode=0644
+  notify:
+    - restart nova-compute
+
+- name: write the nova-compute config file
+  template: src=nova-compute.conf.j2 dest=/etc/nova/nova-compute.conf owner=root group=root mode=0644
+  notify:
+    - restart nova-compute
+
+- name: remove old sqlite db file
+  file: path=/var/lib/nova/nova.sqlite state=absent

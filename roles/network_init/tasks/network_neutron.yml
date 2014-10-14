@@ -1,0 +1,74 @@
+hosts: network
+  - name: neutron network node packages
+    apt: pkg={{ item }} state=installed
+    tags: neutron_network
+    with_items:
+      - neutron-plugin-ml2 
+      - neutron-plugin-openvswitch-agent 
+      - openvswitch-datapath-dkms 
+      - neutron-l3-agent 
+      - neutron-dhcp-agent
+
+  - name: write the neutron config file
+    template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf owner=root group=root mode=0644
+    notify: 
+      - restart neutron-plugin-openvswitch-agent
+      - restart neutron-l3-agent
+      
+  - name: write the metadata agent config file
+    template: src=metadata_agent.ini.j2 dest=/etc/neutron/metadata_agent.ini owner=root group=root mode=0644
+    notify:
+      - restart neutron-metadata-agent
+      
+  - name: write the l3 agent config file
+    template: src=l3_agent.ini.j2 dest=/etc/neutron/l3_agent.ini owner=root group=root mode=0644
+    notify:
+      - restart neutron-metadata-agent
+    
+  - name: write the dhcp agent config file
+    template: src=dhcp_agent.ini.j2 dest=/etc/neutron/dhcp_agent.ini owner=root group=root mode=0644
+    notify:    
+      - restart neutron-dhcp-agent
+      
+  - name: write the dnsmasq config file
+    template: src=dnsmasq-neutron.conf.j2 dest=/etc/neutron/dnsmasq-neutron.conf owner=root group=root mode=0644
+    notify:    
+      - restart neutron-dhcp-agent
+      
+  - name: write the ml2 config file
+    template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini owner=root group=root mode=0644
+    notify:    
+      - restart openvswitch-switch
+    
+  - name: remove old sqlite db file
+    file: path=/var/lib/neutron/neutron.sqlite state=absent
+
+  - name: get the list of ovs bridges
+    shell: ovs-vsctl list-br
+    register: ovs_bridges_list
+
+  - name: create ovs br-int bridge
+    shell: ovs-vsctl add-br br-int
+    when: ovs_bridges_list.stdout.find('br-int') == -1
+
+  - name: create ovs br-ex bridge
+    shell: ovs-vsctl add-br br-ex
+    when: ovs_bridges_list.stdout.find('br-ex') == -1 
+
+  - name: get the list of the current ports on br-ex
+    shell: ovs-vsctl list-ports br-ex
+    register: ovs_br_ex_port_list
+   
+  # hardcoded for now to eth1
+  # changed to eth0 by Peter
+  - name: create the interface port for the private network
+    shell: ovs-vsctl add-port br-ex {{ EXT_INTERFACE }}
+    when: ovs_br_ex_port_list.stdout.find("{{ EXT_INTERFACE}}") == -1
+    
+  - name: remove gro from the private network
+    shell: ethtool -K {{ EXT_INTERFACE }} gro off
+
+  # TODO check if br-ex is configured already
+
+  - name: configure ext gw ip on ext interface
+    shell: ifconfig {{ EXT_BRIDGE }} {{ EXT_NETWORK_GATEWAY }} up

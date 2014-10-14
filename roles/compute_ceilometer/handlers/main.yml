@@ -1,0 +1,2 @@
+- name: restart ceilometer-agent-compute
+  service: name=ceilometer-agent-compute state=restarted

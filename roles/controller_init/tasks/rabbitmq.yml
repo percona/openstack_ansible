@@ -1,0 +1,10 @@
+- name: RabbitMQ package
+  apt: pkg=rabbitmq-server state=installed
+  tags: apt_rabbitmq-server
+  
+- name: Start rabbitmq-server
+  service: name=rabbitmq-server state=started enabled=true
+  
+- name: RabbitMQ | Set guest password
+  shell: rabbitmqctl change_password guest {{ RABBIT_PASS }}
+

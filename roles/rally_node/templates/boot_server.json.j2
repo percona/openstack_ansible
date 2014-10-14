@@ -1,0 +1,38 @@
+{
+    "NovaServers.boot_server": [
+        {
+            "args": {
+                "flavor": {
+                    "name": "m1.tiny"
+                },
+                "image": {
+                    "name": "cirros-0.3.2-x86_64"
+                },
+                "nics": [ {
+                    "net-id": "{{ demo_net_id.stdout }}"
+                          } ]
+            },
+            "runner": {
+                "type": "constant",
+                "times": 10000,
+                "concurrency": 24
+            },
+            "context": {
+                "users": {
+                    "tenants": 3,
+                    "users_per_tenant": 2
+                },
+                "quotas": {
+                  "nova": {
+                    "instances": -1,
+                    "cores": -1,
+                    "ram": -1
+                  },
+                  "neutron": {
+                    "port": -1
+                  }
+                }
+            }
+        }
+    ]
+}

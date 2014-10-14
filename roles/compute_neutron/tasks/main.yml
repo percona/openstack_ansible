@@ -1,0 +1,33 @@
+- sysctl: name=net.ipv4.conf.all.rp_filter value=0 state=present
+- sysctl: name=net.ipv4.conf.default.rp_filter value=0 state=present
+
+- name: neutron compute node packages
+  apt: pkg={{ item }} state=installed
+  tags: packages
+  with_items:
+    - neutron-plugin-ml2 
+    - neutron-plugin-openvswitch-agent 
+    - neutron-common
+    - openvswitch-datapath-dkms
+
+- name: write the neutron config file
+  template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf owner=root group=root mode=0644
+  notify:
+    - restart openvswitch-switch
+    - restart neutron-plugin-openvswitch-agent
+
+- name: write the ml2 config file
+  template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini owner=root group=root mode=0644
+  notify:
+    - restart openvswitch-switch
+
+- name: get the list of ovs bridges
+  shell: ovs-vsctl list-br
+  register: ovs_bridges_list
+
+- name: create ovs br-int bridge
+  shell: ovs-vsctl add-br br-int
+  when: ovs_bridges_list.stdout.find('br-int') == -1
+
+- name: remove gro from the private network
+  shell: ethtool -K eth1 gro off

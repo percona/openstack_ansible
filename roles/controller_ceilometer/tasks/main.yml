@@ -1,0 +1,65 @@
+- name: install ceilometer packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - ceilometer-api 
+  - ceilometer-collector 
+  - ceilometer-agent-central
+  - ceilometer-agent-notification 
+  - ceilometer-alarm-evaluator 
+  - ceilometer-alarm-notifier 
+  - python-ceilometerclient
+  - mongodb-server
+
+- name: render mongodb.conf
+  template: src=mongodb.conf.j2 dest=/etc/mongodb.conf owner=root group=root mode=0644
+  notify:
+  - restart mongodb
+
+- name: render mongodb_users.js
+  template: src=mongodb_users.js.j2 dest=/var/tmp/mongodb_users.js owner=root group=root mode=0644
+
+# TODO: create this user only if it doesn't exist
+- name: create mongodb mongodb_user
+  shell: mongo < /var/tmp/mongodb_users.js
+  ignore_errors: true
+
+- name: render ceilometer.conf
+  template: src=ceilometer.conf.j2 dest=/etc/ceilometer/ceilometer.conf
+  notify:
+    - restart ceilometer-all
+
+- name: remove ceilometer sqliste database
+  file: name=/var/lib/ceilometer/ceilometer.sql state=absent
+
+- name: get keystone users
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create ceilometer user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=ceilometer --pass={{ CEILOMETER_PASS }} --email ceilometer@localhost
+  when: keystone_user_list_result.stdout.find('ceilometer') == -1
+  
+- name: set keystone role return value (ceilometer)
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=ceilometer --tenant=service --role=admin
+  ignore_errors: true
+
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: create ceilometer keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=ceilometer --type=metering --description="Telemetry"
+  when: keystone_service_list_result.stdout.find('ceilometer') == -1
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: get keystone ceilometer service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ metering / {print $2}'
+  register: keystone_ceilometer_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_ceilometer_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8777 --internalurl=http://{{ ansible_hostname }}:8777 --adminurl=http://{{ ansible_hostname }}:8777
+  when: keystone_endpoint_list_result.stdout.find(keystone_ceilometer_service_id.stdout) == -1
+  notify: restart ceilometer-all

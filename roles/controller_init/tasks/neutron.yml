@@ -1,0 +1,67 @@
+hosts: controller
+  - name: create neutron database
+    mysql_db: name=neutron state=present
+
+  - name: neutron user from 127.0.0.1
+    mysql_user: name=neutron password={{ NEUTRON_DBPASS }} host='127.0.0.1' priv=neutron.*:ALL state=present
+
+  - name: neutron user from localhost
+    mysql_user: name=neutron password={{ NEUTRON_DBPASS }} host='localhost' priv=neutron.*:ALL state=present
+
+  - name: neutron user from %
+    mysql_user: name=neutron password={{ NEUTRON_DBPASS }} host='%' priv=neutron.*:ALL state=present
+
+  - name: get keystone users
+    shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+    register: keystone_user_list_result
+
+  - name: create neutron user
+    shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=neutron --pass={{ NEUTRON_PASS }} --email neutron@localhost
+    when: keystone_user_list_result.stdout.find('neutron') == -1
+    
+  - name: get keystone services
+    shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list 
+    register: keystone_neutron_service_list
+    
+  - name: create neutron keyston service id
+    shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name neutron --type network --description "OpenStack Networking"
+    when: keystone_neutron_service_list.stdout.find('network') == -1
+
+  - name: get keystone neutron service-id
+    shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ network / {print $2}' 
+    register: keystone_neutron_service_id
+
+  - name: get keystone role return value (neutron)
+    shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=neutron --tenant=service --role=admin
+    ignore_errors: true
+    
+  - name: get keystone endpoints
+    shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+    register: keystone_endpoint_list_result
+    
+  - name: create keystone neutron endpoint
+    shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_neutron_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:9696 --internalurl=http://{{ ansible_hostname }}:9696 --adminurl=http://{{ ansible_hostname }}:9696
+    when: keystone_endpoint_list_result.stdout.find(keystone_neutron_service_id.stdout) == -1
+
+  - name: neutron package
+    apt: pkg={{ item }} state=installed
+    tags: neutron
+    with_items:
+      - neutron-server
+      - neutron-plugin-ml2
+
+  - name: get keystone service tenant id
+    shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone tenant-get service |  awk '/ id / {print $4}'
+    register: keystone_service_tenant_id
+
+
+  - name: write the neutron config file
+    template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf owner=root group=root mode=0644
+    notify:
+      - restart neutron-server
+
+  - name: write the neutron-ml2 config file
+    template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini owner=root group=root mode=0644
+    notify:
+      - restart neutron-server
+

@@ -1,0 +1,31 @@
+- name: restart mongodb
+  service: name=mongodb state=restarted
+
+- name: restart ceilometer-agent-central
+  service: name=ceilometer-agent-central state=restarted
+
+- name: restart ceilometer-agent-notification
+  service: name=ceilometer-agent-notification state=restarted
+
+- name: restart ceilometer-api
+  service: name=ceilometer-api state=restarted
+
+- name: restart ceilometer-collector
+  service: name=ceilometer-collector state=restarted
+
+- name: restart ceilometer-alarm-evaluator
+  service: name=ceilometer-alarm-evaluator state=restarted
+
+- name: restart ceilometer-alarm-notifier
+  service: name=ceilometer-alarm-notifier state=restarted
+
+- name: restart ceilometer-all
+  service: name={{ item }} state=restarted
+  with_items:
+    - ceilometer-agent-central
+    - ceilometer-agent-notification
+    - ceilometer-api
+    - ceilometer-collector
+    - ceilometer-alarm-evaluator
+    - ceilometer-alarm-notifier
+    

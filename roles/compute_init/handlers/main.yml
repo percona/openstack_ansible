@@ -1,0 +1,15 @@
+---
+
+#handlers for compute node
+
+- name: restart neutron-plugin-openvswitch-agent
+  service: name=neutron-plugin-openvswitch-agent state=restarted
+  
+- name: restart neutron
+  service: name=neutron state=restarted
+  
+- name: restart nova-compute
+  service: name=nova-compute state=restarted
+
+- name: restart openvswitch-switch
+  service: name=openvswitch-switch state=restarted

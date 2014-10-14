@@ -1,0 +1,35 @@
+- name: Mysql | Set root password
+  shell: cat 'mysql-server mysql-server/root_password password {{ MYSQL_ROOT_PASS }}' | debconf-set-selections 
+
+- name: Mysql | Set root repassword
+  shell: cat 'mysql-server mysql-server/root_password_again {{ MYSQL_ROOT_PASS }}' | debconf-set-selections
+
+- name: write the mysql config file
+  template: src=my.cnf.j2 dest=/etc/mysql/my.cnf owner=root group=root mode=0644
+  notify:
+    - restart mysql
+
+- name: percona apt key
+  apt_key: id=1C4CBDCDCD2EFD2A url='http://www.percona.com/redir/downloads/RPM-GPG-KEY-percona' state=present
+  tags: percona_repo
+
+- name: percona apt repository binary
+  apt_repository: repo='deb http://repo.percona.com/apt trusty main' state=present
+  tags: percona_repo
+
+- name: percona apt repository src
+  apt_repository: repo='deb-src http://repo.percona.com/apt trusty main' state=present
+  tags: percona_repo
+
+- name: percona-server-server-5.6 package
+  apt: pkg=percona-server-server-5.6 state=installed
+  tags: percon-server
+  
+- name: Start Percona server
+  service: name=mysql state=started enabled=true
+
+- name: remove localhost anonymous user
+  mysql_user: name='' host='localhost' state=absent
+
+- name: remove anonymous user with hostname
+  mysql_user: name='' host={{ ansible_hostname }} state=absent

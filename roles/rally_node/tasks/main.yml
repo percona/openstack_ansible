@@ -1,0 +1,95 @@
+- name: install git
+  apt: pkg=git state=installed
+
+- name: check if rally is checked out already
+  shell: ls /opt | grep rally
+  register: rally_present
+  ignore_errors: true
+
+- name: check out rally from git
+  shell: git clone https://github.com/stackforge/rally.git
+  args:
+    chdir: /opt
+  when: rally_present.rc != 0
+
+- name: check if rally is installed
+  shell: which rally
+  register: rally_installed
+  ignore_errors: true
+
+- name: install rally
+  shell: ./rally/install_rally.sh
+  args:
+    chdir: /opt
+  when: rally_installed.rc != 0
+
+- name: render openstack_admin.rc
+  template:
+    src: openstack_admin.rc.j2
+    dest: /root/.openstack_admin.rc
+    owner: root
+    group: root
+    mode: 0600
+
+- name: render openstack_demo.rc
+  template:
+    src: openstack_demo.rc.j2
+    dest: /root/.openstack_demo.rc
+    owner: root
+    group: root
+    mode: 0600
+
+- name: create json for existing openstack deployment
+  template:
+    src: deployment.json.j2
+    dest: /var/tmp/deployment.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: get rally deployments
+  shell: rally deployment list | grep "There are no deployments."
+  register: rally_deployments
+  ignore_errors: true
+
+- name: get demo-net's net id
+  shell: . /root/.openstack_demo.rc ; neutron net-list | awk '/demo-net/ {print $2}'
+  register: demo_net_id
+
+- name: render deployment.json
+  template:
+    src: deployment.json.j2
+    dest: /var/tmp/deployment.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: register cloud as rally deployment
+  shell: rally deployment create --filename=/var/tmp/deployment.json --name=existing
+  when: rally_deployments.rc == 0
+
+- name: get rally deployment uuid
+  shell: rally deployment list | awk '/existing/ {print $2}'
+  register: rally_deployment_uuid
+
+- name: execute rally deployment check
+  shell: rally deployment check 
+
+- name: render rally boot_and_delete_server
+  template: 
+    src: boot_and_delete_server.json.j2
+    dest: /var/tmp/boot_and_delete_server.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: render rally boot_server
+  template:
+    src: boot_server.json.j2
+    dest: /var/tmp/boot_server.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: make rally use the deployment
+  shell: rally use deployment --uuid {{ rally_deployment_uuid.stdout }}

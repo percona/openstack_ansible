@@ -1,0 +1,38 @@
+- name: get keystone users
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create swift user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=swift --pass={{ SWIFT_PASS }} --email swift@localhost
+  when: keystone_user_list_result.stdout.find('swift') == -1
+
+- name: add swift user role 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=swift --tenant=service --role=admin
+  ignore_errors: true
+
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: create swift keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=swift --type=object-store --description="OpenStack Objec Store"
+  when: keystone_service_list_result.stdout.find('swift') == -1
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: get keystone swift service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ object-store / {print $2}'
+  register: keystone_swift_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_swift_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8080/v1/AUTH_%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8080/v1/AUTH_%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8080/v1/AUTH_%\(tenant_id\)s
+  when: keystone_endpoint_list_result.stdout.find(keystone_swift_service_id.stdout) == -1
+
+- name: create /etc/swift
+  file: path=/etc/swift state=directory
+
+- name: render swift.conf
+  template: src=swift.conf.j2 dest=/etc/swift/swift.conf owner=root group=root mode=0644
+

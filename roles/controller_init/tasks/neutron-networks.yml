@@ -1,0 +1,49 @@
+hosts: controller
+  - name: get current neutron nets
+    shell: bash -c '. /root/.openstack_admin.rc ; neutron net-list | grep {{ EXT_NET_NAME }} | wc -l'
+    register: ext_net_exists
+
+  - name: create ext net
+    shell: bash -c '. /root/.openstack_admin.rc ; neutron net-create {{ EXT_NET_NAME }} --shared --router:external=True'
+    when: ext_net_exists.stdout == "0"
+
+  - name: get current neutron subnets
+    shell: bash -c '. /root/.openstack_admin.rc ; neutron subnet-list | grep {{ EXT_SUBNET_NAME }} | wc -l'
+    register: ext_subnet_exists
+
+  - debug: msg="{{ ext_subnet_exists }}"
+
+  - name: create neutron subnet
+    shell: bash -c '. /root/.openstack_admin.rc ; neutron subnet-create {{ EXT_NET_NAME }} --name {{ EXT_SUBNET_NAME }} --allocation-pool start={{ EXT_FLOATING_IP_START }},end={{ EXT_FLOATING_IP_END }} --disable-dhcp --gateway {{ EXT_NETWORK_GATEWAY }} {{ EXT_NETWORK_CIDR }}'
+    when: ext_subnet_exists.stdout == "0"
+
+  - name: get demo net
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron net-list | grep {{ DEMO_NET_NAME }} | wc -l'
+    register: demo_tenant_exists
+
+  - name: create demo net
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron net-create {{ DEMO_NET_NAME }}'
+    when: demo_tenant_exists.stdout == "0"
+
+  - name: get demo subnet
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron subnet-list | grep {{ DEMO_SUBNET_NAME }} | wc -l'
+    register: demo_subnet_exists
+
+  - name: create demo net
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron subnet-create {{ DEMO_NET_NAME }} --name {{ DEMO_SUBNET_NAME }} --gateway {{ DEMO_GATEWAY }} {{ DEMO_CIDR }}'
+    when: demo_subnet_exists.stdout == "0"
+
+  - name: get demo router
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron router-list | grep {{ DEMO_ROUTER }} | wc -l'
+    register: demo_router_exists
+
+  - name: create demo router
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron router-create {{ DEMO_ROUTER }}'
+    when: demo_router_exists.stdout == "0"
+
+  - name: neutron add router interface
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron router-interface-add {{ DEMO_ROUTER }} {{ DEMO_SUBNET_NAME }}'
+    ignore_errors: true
+
+  - name: neutron set gateway for demo router
+    shell: bash -c '. /root/.openstack_demo.rc ; neutron router-gateway-set {{ DEMO_ROUTER }} {{ EXT_NET_NAME }}'

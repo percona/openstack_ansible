@@ -1,0 +1,12 @@
+- name: install apache packages
+  apt: pkg={{ item }} state=installed
+  tags: packages
+  with_items:
+    - apache2 
+    - memcached 
+    - libapache2-mod-wsgi 
+    - openstack-dashboard
+
+- name: remove openstack-ubuntu-dashboard-theme
+  apt: pkg="openstack-ubuntu-dashboard-theme" state=absent
+  tags: packages

@@ -1,0 +1,7 @@
+- name: install packages
+  apt: pkg=ceilometer-agent-compute state=present
+
+- name: render ceilometer.conf
+  template: src=ceilometer.conf.j2 dest=/etc/ceilometer/ceilometer.conf owner=root group=root mode=0644
+  notify:
+    - restart ceilometer-agent-compute

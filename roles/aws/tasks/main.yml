@@ -1,0 +1,22 @@
+# - name: Provison VPC
+#   local_action:
+#     module: ec2_vpc
+#     state: present
+#     cidr_block: 172.18.0.0/15
+#     subnets:
+#       - cidr: 172.18.0.0/16
+#         az: us-east-1a
+#       - cidr: 172.19.0.0/16
+#         az: us-east-1a
+#     region: us-east-1
+#     wait: yes
+#   register: vpc
+
+# - debug: var=vpc
+
+- name: remove key pair
+  local_action:
+    module: ec2_key
+    region: us-east-1
+    name: pboros
+    state: absent
