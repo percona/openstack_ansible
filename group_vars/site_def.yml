@@ -1,5 +1,5 @@
 # External interface to reach the outside world
-EXT_INTERFACE: eth2
+EXT_INTERFACE: eth0
 EXT_NET_NAME: ext-net
 EXT_BRIDGE: br-ex
 EXT_SUBNET_NAME: ext-subnet
@@ -9,7 +9,7 @@ EXT_NETWORK_GATEWAY: 172.17.0.1
 EXT_NETWORK_CIDR: 172.17.0.0/16
 
 # Tunnel interface
-TUN_INTERFACE: eth1
+TUN_INTERFACE: eth0
 
 # Demo tenant name
 DEMO_NET_NAME: demo-net

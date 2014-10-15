@@ -4,15 +4,19 @@
   with_items:
     - lvm2
 
-# the pv for cinder-volumes is hardcoded to /dev/sdb right now
-- name: get if pv exists for sdb
-  shell: pvs | grep sdb
+- name: Make sure xvdb is unmounted
+  shell: umount -l /dev/xvdb
   ignore_errors: true
-  register: is_sdb_pv_exist
 
-- name: create sdb pv
-  shell: pvcreate /dev/sdb
-  when: is_sdb_pv_exist.stdout == ''
+# the pv for cinder-volumes is hardcoded to /dev/xvdb right now
+- name: get if pv exists for xvdb
+  shell: pvs | grep xvdb
+  ignore_errors: true
+  register: is_xvdb_pv_exist
+
+- name: create xvdb pv
+  shell: pvcreate /dev/xvdb
+  when: is_xvdb_pv_exist.stdout == ''
 
 - name: get if cinder-volumes vg exists
   shell: vgs | grep cinder-volumes
@@ -20,7 +24,7 @@
   register: is_cinder_volumes_vg_exist
 
 - name: create cinder-volumes vg
-  shell: vgcreate cinder-volumes /dev/sdb
+  shell: vgcreate cinder-volumes /dev/xvdb
   when: is_cinder_volumes_vg_exist.stdout == ''
 
 - name: write lvm2 configuration

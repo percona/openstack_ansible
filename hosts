@@ -11,16 +11,16 @@
 # Ex 1: Ungrouped hosts, specify before any group headers.
 
 [controller]
-10.10.10.11
+54.187.49.146
 
 [network]
-10.10.10.21
+54.69.25.250
 
 [compute]
-10.10.10.31
+54.187.99.171
 
 [benchmark]
-10.10.10.41
+54.68.241.209
 
 #[common]
 #10.10.10.11

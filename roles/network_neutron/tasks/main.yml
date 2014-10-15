@@ -64,13 +64,13 @@
   shell: ovs-vsctl list-ports br-ex
   register: ovs_br_ex_port_list
  
-# hardcoded for now to eth2
-- name: create the interface port for the private network
-  shell: ovs-vsctl add-port br-ex eth2
-  when: ovs_br_ex_port_list.stdout.find('eth2') == -1
+# hardcoded for now to eth0
+# - name: create the interface port for the private network
+#   shell: ovs-vsctl add-port br-ex eth0
+#   when: ovs_br_ex_port_list.stdout.find('eth0') == -1
   
 - name: remove gro from the private network
-  shell: ethtool -K eth1 gro off
+  shell: ethtool -K eth0 gro off
 
 - name: set gw ip
   shell: ifconfig br-ex 172.17.0.2 up
