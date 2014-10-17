@@ -49,6 +49,8 @@
     assign_public_ip: True
     private_ip: 10.10.10.101
     wait: yes
+  with_items:
+    - instance_name: 'controller'
   register: controller
 
 - name: Provision EC2 instance - network 
@@ -68,6 +70,8 @@
     assign_public_ip: True
     private_ip: 10.10.10.102
     wait: yes
+  with_items:
+    - instance_name: 'network'
   register: network
 
 - name: Provision EC2 instance - compute 
@@ -87,6 +91,8 @@
     assign_public_ip: True
     private_ip: 10.10.10.103
     wait: yes
+  with_items:
+    - instance_name: 'compute'
   register: compute
 
 - name: Provision EC2 instance - benchmark 
@@ -106,6 +112,12 @@
     assign_public_ip: True
     private_ip: 10.10.10.104
     wait: yes
+  with_items:
+    - instance_name: 'benchmark'
   register: benchmark
 
-- debug: var=vpc
+- name: Add host addresses to inventory (hosts)
+  template: 
+    src=hosts.j2
+    dest="{{ inventory_dir }}/hosts"
+
