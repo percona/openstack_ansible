@@ -32,7 +32,7 @@
         to_port: 22
         cidr_ip: 0.0.0.0/0
 
-- name: Provision EC2 instances 
+- name: Provision EC2 instance - controller 
   local_action:
     module: ec2
     region: "{{ aws_region }}"
@@ -41,13 +41,71 @@
     instance_type: "{{ aws_instanceType }}"
     image: "{{ aws_image }}"
     instance_tags:
-      role: openstack-host
-    exact_count: 4
+      role: openstack-controller
+    exact_count: 1
     count_tag:
-      role: openstack-host
+      role: openstack-controller
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
+    private_ip: 10.10.10.101
     wait: yes
-  register: id
+  register: controller
+
+- name: Provision EC2 instance - network 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-network
+    exact_count: 1
+    count_tag:
+      role: openstack-network
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.102
+    wait: yes
+  register: network
+
+- name: Provision EC2 instance - compute 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute
+    exact_count: 1
+    count_tag:
+      role: openstack-compute
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.103
+    wait: yes
+  register: compute
+
+- name: Provision EC2 instance - benchmark 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-benchmark
+    exact_count: 1
+    count_tag:
+      role: openstack-benchmark
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.104
+    wait: yes
+  register: benchmark
 
 - debug: var=vpc
