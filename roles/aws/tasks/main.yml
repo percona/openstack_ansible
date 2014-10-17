@@ -31,6 +31,8 @@
         from_port: 22
         to_port: 22
         cidr_ip: 0.0.0.0/0
+      - proto: all
+        cidr_ip: 10.10.10.0/24
 
 - name: Provision EC2 instance - controller 
   local_action:
