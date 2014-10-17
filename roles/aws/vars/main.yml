@@ -1,1 +1,5 @@
 aws_region: us-west-2
+aws_keypair: rbarabas
+aws_instanceType: m3.xlarge
+aws_image: ami-37501207
+
