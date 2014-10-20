@@ -8,18 +8,6 @@
 - name: write the cinder config file
   template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf owner=root group=root mode=0644
 
-- name: create cinder database
-  mysql_db: name=cinder state=present
-
-- name: cinder user from 127.0.0.1
-  mysql_user: name=cinder password={{ CINDER_DBPASS }} host='127.0.0.1' priv=cinder.*:ALL state=present
-
-- name: cinder user from localhost
-  mysql_user: name=cinder password={{ CINDER_DBPASS }} host='localhost' priv=cinder.*:ALL state=present
-
-- name: cinder user from %
-  mysql_user: name=cinder password={{ CINDER_DBPASS }} host='%' priv=cinder.*:ALL state=present
-
 - name: cinder db sync
   shell: su -s /bin/sh -c "cinder-manage db sync" cinder
 

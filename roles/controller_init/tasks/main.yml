@@ -1,6 +1,0 @@
---- 
-
-- include: mysql.yml
-- include: rabbitmq.yml
-- include: keystone.yml
-- include: glance.yml

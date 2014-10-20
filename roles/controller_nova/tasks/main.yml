@@ -19,18 +19,6 @@
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf owner=root group=root mode=0644
   notify: restart nova-all
 
-- name: create nova database
-  mysql_db: name=nova state=present
-
-- name: nova user from 127.0.0.1
-  mysql_user: name=nova password={{ NOVA_DBPASS }} host='127.0.0.1' priv=nova.*:ALL state=present
-
-- name: nova user from localhost
-  mysql_user: name=nova password={{ NOVA_DBPASS }} host='localhost' priv=nova.*:ALL state=present
-
-- name: nova user from %
-  mysql_user: name=nova password={{ NOVA_DBPASS }} host='%' priv=nova.*:ALL state=present
-
 - name: nova db sync
   shell: su -s /bin/sh -c "nova-manage db sync" nova
 
@@ -65,4 +53,28 @@
 - name: create keystone endpoint
   shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_nova_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s
   when: keystone_endpoint_list_result.stdout.find(keystone_nova_service_id.stdout) == -1
-  notify: restart nova-all
+
+- name: restart nova services
+  service: 
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - nova-api
+    - nova-cert
+    - nova-consoleauth
+    - nova-conductor
+    - nova-scheduler
+    - nova-novncproxy
+
+# TODO why
+- name: sleep
+  shell: sleep 5
+
+- name: check for ssh keypair
+  shell: . /root/.openstack_demo.rc ; nova keypair-list | grep demo-key
+  register: nova_keypair_list_out
+  ignore_errors: true
+
+- name: add keypair as demo-key
+  shell: . /root/.openstack_demo.rc ; nova keypair-add --pub-key /root/.ssh/authorized_keys demo-key
+  when: nova_keypair_list_out.rc != 0

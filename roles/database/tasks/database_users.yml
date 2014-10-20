@@ -1,0 +1,73 @@
+- name: mysql remote root
+  mysql_user: 
+    name: root 
+    password: ''
+    host: '%' 
+    priv: '*.*:ALL'
+    state: present
+
+- name: mysql keystone user
+  mysql_user: 
+    name: keystone 
+    password: '{{ KEYSTONE_DBPASS }}'
+    host: '{{ item }}'
+    priv: 'keystone.*:ALL'
+    state: present
+  with_items:
+    - 'localhost'
+    - '%'
+
+- name: mysql glance user 
+  mysql_user: 
+    name: glance 
+    password: '{{ GLANCE_DBPASS }}' 
+    host: '{{ item }}'
+    priv: 'glance.*:ALL' 
+    state: present
+  with_items:
+    - 'localhost'
+    - '%'
+
+- name: mysql nova user 
+  mysql_user: 
+    name: nova 
+    password: '{{ NOVA_DBPASS }}' 
+    host: '{{ item }}'
+    priv: 'nova.*:ALL' 
+    state: present
+  with_items:
+    - 'localhost'
+    - '%'
+
+- name: mysql neutron user
+  mysql_user: 
+    name: neutron 
+    password: '{{ NEUTRON_DBPASS }}' 
+    host: '{{ item }}'
+    priv: 'neutron.*:ALL' 
+    state: present
+  with_items:
+    - 'localhost'
+    - '%'
+
+- name: mysql cinder user
+  mysql_user: 
+    name: cinder 
+    password: '{{ CINDER_DBPASS }}' 
+    host: '{{ item }}' 
+    priv: 'cinder.*:ALL' 
+    state: present
+  with_items:
+    - 'localhost'
+    - '%'
+
+- name: mysql heat user
+  mysql_user: 
+    name: heat 
+    password: '{{ HEAT_DBPASS }}' 
+    host: '{{ item }}' 
+    priv: 'heat.*:ALL' 
+    state: present
+  with_items:
+    - 'localhost'
+    - '%'

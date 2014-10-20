@@ -1,5 +1,0 @@
----
-- hosts: compute
-  roles:
-    - common
-    - swift_storage

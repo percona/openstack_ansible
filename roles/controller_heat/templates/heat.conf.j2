@@ -820,7 +820,7 @@ rabbit_password={{ RABBIT_PASS }}
 # Deprecated group/name - [sql]/connection
 #connection=sqlite:////heat/openstack/common/db/$sqlite_db
 #connection=sqlite:////var/lib/heat/$sqlite_db
-connection = mysql://heat:{{ HEAT_DBPASS }}@{{ ansible_hostname }}/heat
+connection = mysql://heat:{{ HEAT_DBPASS }}@{{ database_host }}/heat
 
 # The SQLAlchemy connection string used to connect to the
 # slave database (string value)

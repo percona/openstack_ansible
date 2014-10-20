@@ -28,6 +28,3 @@
 - name: create ovs br-int bridge
   shell: ovs-vsctl add-br br-int
   when: ovs_bridges_list.stdout.find('br-int') == -1
-
-- name: remove gro from the private network
-  shell: ethtool -K eth0 gro off

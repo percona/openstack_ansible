@@ -1,5 +1,4 @@
 ---
 - hosts: benchmark
   roles:
-    - common
     - rally_node

@@ -1,5 +1,4 @@
 ---
 - hosts: controller
   roles:
-    - common
     - controller_cinder

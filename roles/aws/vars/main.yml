@@ -1,5 +1,5 @@
-aws_region: us-west-2
+aws_region: eu-west-1
 aws_keypair: pboros
 aws_instanceType: m3.xlarge
-aws_image: ami-37501207
-
+aws_image: ami-f6b11181
+# us-west-2 ami-37501207

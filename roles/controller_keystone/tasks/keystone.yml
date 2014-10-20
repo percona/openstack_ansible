@@ -1,0 +1,42 @@
+---
+
+- name: keystone package
+  apt: pkg={{ item }} state=installed
+  tags: keystone
+  with_items:
+    - keystone
+    - python-keystone
+
+- name: write the keystone config file
+  template: src=keystone.conf.j2 dest=/etc/keystone/keystone.conf owner=root group=root mode=0644
+  notify:
+    - restart keystone
+
+- name: remove old sqlite db file
+  file: path=/var/lib/keystone/keystone.db state=absent
+
+- name: keystone db_sync
+  shell: su -s /bin/sh -c "keystone-manage db_sync" keystone
+
+- name: restart keystone
+  service:
+    name: keystone
+    state: restarted
+  
+- name: cron job to flush the old tokens
+  cron: name="keystone_flush" user=keystone state=present minute=1 job="/usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1"
+
+- name: render keystone init template
+  template: src=keystone_init.sh.j2 dest=/var/tmp/keystone_init.sh owner=root group=root mode=0755
+
+- name: initialize keystone
+  shell: /var/tmp/keystone_init.sh
+
+- file: path=/var/tmp/keystone_init.sh state=absent
+
+- name: creates the openstack_admin.rc
+  template: src=openstack_admin.rc.j2 dest=/root/.openstack_admin.rc owner=root group=root mode=0600
+
+- name: creates the openstack_demo.rc
+  template: src=openstack_demo.rc.j2 dest=/root/.openstack_demo.rc owner=root group=root mode=0600
+
