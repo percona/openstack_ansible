@@ -1,0 +1,103 @@
+- name: Mysql | Set root password
+  shell: cat 'mysql-server mysql-server/root_password password {{ MYSQL_ROOT_PASS }}' | debconf-set-selections 
+
+- name: Mysql | Set root repassword
+  shell: cat 'mysql-server mysql-server/root_password_again {{ MYSQL_ROOT_PASS }}' | debconf-set-selections
+
+- name: percona-xtradb-cluster-server-5.6 package
+  apt: 
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - percona-xtradb-cluster-server-5.6
+    - percona-xtradb-cluster-client-5.6
+    - python-mysqldb
+    - xinetd
+
+- name: determine if this is the first installation
+  shell: mysql --silent --silent -e "show global status like 'wsrep_cluster_size%';" | awk '{print $2}'
+  register: first_installation
+
+- name: kill mysql on first installation
+  shell: pkill -9 mysqld
+  when: first_installation.stdout == "0"
+
+- name: wipe datadir on first installation
+  shell: rm -rf /var/lib/mysql/*
+  when: first_installation.stdout == "0"
+
+- name: write the mysql config file
+  template: 
+    src: my.cnf-pxc.j2 
+    dest: /etc/mysql/my.cnf 
+    owner: root 
+    group: root 
+    mode: 0644
+
+- name: get xvdb mount state
+  shell: mount | awk '/xvdb/ {print $3}'
+  register: xvdb_mounted
+  ignore_errors: true
+
+- name: umount xvdb
+  shell: umount -l /dev/xvdb
+  when: xvdb_mounted.stdout != '/var/lib/mysql'
+  ignore_errors: true
+
+- name: make filesystem on xvdb
+  shell: mkfs.ext4 -b 4096 /dev/xvdb
+  when: xvdb_mounted.stdout != '/var/lib/mysql'
+
+- name: create mysql group
+  group:
+    name: mysql
+    state: present
+
+- name: create mysql user
+  user:
+    name: mysql
+    group: mysql
+    state: present
+
+- name: create datadir
+  file: 
+    name: /var/lib/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+
+- mount: 
+    name: /mnt
+    src: /dev/xvdb 
+    fstype: auto
+    state: absent
+
+- mount: 
+    name: /var/lib/mysql 
+    src: /dev/xvdb 
+    fstype: ext4 
+    opts: defaults,noatime,nodiratime 
+    state: present
+
+- name: mount filesystems
+  shell: mount -a
+
+- name: set owner of mysql datadir
+  shell: chown -R mysql:mysql /var/lib/mysql
+
+- name: start mysql
+  service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: render /etc/services
+  template:
+    src: services.j2
+    dest: /etc/services
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart xinetd

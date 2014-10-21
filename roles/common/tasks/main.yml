@@ -1,31 +1,55 @@
 ---
 # file: roles/common/tasks/main.yml
 
-- name: be sure ntp is installed
-  apt: pkg=ntp state=installed
-  tags: ntp
+- name: percona apt key
+  apt_key: 
+    id: 1C4CBDCDCD2EFD2A 
+    url: 'http://www.percona.com/redir/downloads/RPM-GPG-KEY-percona' 
+    state: present
 
-- name: be sure ntpd is running and enabled
-  service: name=ntp state=running enabled=yes
-  tags: ntp
+- name: percona apt repository binary
+  apt_repository: 
+    repo: 'deb http://repo.percona.com/apt trusty main' 
+    state: present
 
-- name: set /etc/hosts
-  lineinfile: dest=/etc/hosts regexp='.*{{ hostvars[item].ansible_hostname }}$' line="{{ hostvars[item].ansible_eth0.ipv4.address }} {{ hostvars[item].ansible_hostname }}" state=present
-  when: hostvars[item].ansible_eth0.ipv4.address is defined
-  with_items: groups['all']
+- name: percona apt repository src
+  apt_repository: 
+    repo: 'deb-src http://repo.percona.com/apt trusty main' 
+    state: present
+
+- name: generate hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
 
 # All passwords
 - include_vars: group_vars/openstack_password.yml
 
 # Site variables
 - include_vars: group_vars/site_def.yml
+- include_vars: group_vars/additional_ssh_keys.yml
 
-# required packages
-- name: python-mysqldb package
-  apt: pkg=python-mysqldb state=installed
-  tags: python-mysqldb
-  
-- name: python-software-properties package
-  apt: pkg=python-software-properties state=installed
-  tags: python-software-properties
-  
+- name: install packages
+  apt:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - python-software-properties
+    - ntp
+    - sysstat
+
+- name: start and enable ntp
+  service: 
+    name: ntp 
+    state: running 
+    enabled: yes
+
+- name: add additional ssh keys
+  lineinfile:
+    dest: /home/ubuntu/.ssh/authorized_keys
+    line: "{{ item }}"
+    state: present
+  with_items: additional_ssh_keys

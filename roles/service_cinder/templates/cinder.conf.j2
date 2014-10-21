@@ -22,4 +22,4 @@ notification_driver = cinder.openstack.common.notifier.rpc_notifier
 glance_host = controller
 
 [database]
-connection = mysql://cinder:{{ CINDER_DBPASS }}@controller/cinder
+connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_host }}/cinder

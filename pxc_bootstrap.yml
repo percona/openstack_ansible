@@ -1,0 +1,4 @@
+---
+- hosts: pxc_bootstrap
+  roles:
+    - pxc_bootstrap

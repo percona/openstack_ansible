@@ -1,0 +1,43 @@
+- name: get keystone services
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  register: keystone_service_list_result
+
+- name: get keystone endpoints
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  register: keystone_endpoint_list_result
+
+- name: create keystone keystone service 
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=keystone --type=identity --description="OpenStack Identity"
+  when: keystone_service_list_result.stdout.find('keystone') == -1
+
+- name: get keystone keystne service id
+  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ identity / {print $2}'
+  register: keystone_keystone_service_id
+
+- name: create keystone endpoint
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_keystone_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:5000/v2.0 --internalurl=http://{{ ansible_hostname }}:5000/v2.0 --adminurl=http://{{ ansible_hostname }}:35357/v2.0
+  when: keystone_endpoint_list_result.stdout.find(keystone_keystone_service_id.stdout) == -1
+
+- name: get keystone tenant list
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone tenant-list
+  register: keystone_tenant_list_result
+
+- name: create service tenant
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone tenant-create --name=service --description="Service Tenant"
+  when: keystone_tenant_list_result.stdout.find('service') == -1
+
+- name: create demo tenant
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone tenant-create --name=demo --description="demo tenant"
+  when: keystone_tenant_list_result.stdout.find('demo') == -1
+
+- name: get keystone user list
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-list 
+  register: keystone_user_list_result
+
+- name: create demo user
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=demo --pass=demo --email demo@localhost
+  when: keystone_user_list_result.stdout.find('demo') == -1
+  
+- name: add role admin to user demo
+  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user demo --tenant demo --role admin
+  ignore_errors: True

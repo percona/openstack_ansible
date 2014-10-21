@@ -20,7 +20,7 @@ control_exchange = cinder
 notification_driver = cinder.openstack.common.notifier.rpc_notifier
 
 [database]
-connection = mysql://cinder:{{ CINDER_DBPASS }}@controller/cinder
+connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_host }}/cinder
 
 [keystone_authtoken]
 auth_uri = http://controller:5000

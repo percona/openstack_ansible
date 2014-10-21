@@ -5,18 +5,6 @@
   - heat-api-cfn 
   - heat-engine
 
-- name: create heat database
-  mysql_db: name=heat state=present
-
-- name: heat user from 127.0.0.1
-  mysql_user: name=heat password={{ HEAT_DBPASS }} host='127.0.0.1' priv=heat.*:ALL state=present
-
-- name: heat user from localhost
-  mysql_user: name=heat password={{ HEAT_DBPASS }} host='localhost' priv=heat.*:ALL state=present
-
-- name: heat user from %
-  mysql_user: name=heat password={{ HEAT_DBPASS }} host='%' priv=heat.*:ALL state=present
-
 - name: remove old sqlite db file
   file: path=/var/lib/heat/heat.sqlite state=absent
 

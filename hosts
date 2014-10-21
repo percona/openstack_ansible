@@ -1,28 +1,18 @@
-# This is the default ansible 'hosts' file.
-#
-# It should live in /etc/ansible/hosts
-#
-#   - Comments begin with the '#' character
-#   - Blank lines are ignored
-#   - Groups of hosts are delimited by [header] elements
-#   - You can enter hostnames or ip addresses
-#   - A hostname/ip can be a member of multiple groups
+[pxc_bootstrap]
+54.171.158.16
 
-# Ex 1: Ungrouped hosts, specify before any group headers.
+[pxc_node]
+54.171.64.70
+54.171.155.208
 
 [controller]
-10.10.10.11
+54.72.69.240
 
 [network]
-10.10.10.21
+54.76.135.78
 
 [compute]
-10.10.10.31
+54.171.120.141
 
 [benchmark]
-10.10.10.41
-
-#[common]
-#10.10.10.11
-#10.10.10.21
-#10.10.10.31
+54.72.143.200

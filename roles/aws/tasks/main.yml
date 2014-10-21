@@ -20,50 +20,169 @@
 
 - name: Provision SG
   local_action:
-        module: ec2_group
-        state: present
-        name: "loadtest"
-        description: "allow ssh"
-        vpc_id: "{{ vpc.vpc_id }}"
-        region: "{{ aws_region }}"
-        rules:
-          - proto: tcp
-            from_port: 22
-            to_port: 22
-            cidr_ip: 0.0.0.0/0
+    module: ec2_group
+    state: present
+    name: "loadtest"
+    description: "allow ssh"
+    vpc_id: "{{ vpc.vpc_id }}"
+    region: "{{ aws_region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: all
+        cidr_ip: 10.10.10.0/24
 
-- name: Provision EC2 instances - zone 1
+- name: Provision EC2 instance - database1 
   local_action:
-        module: ec2
-        state: present
-# id: "{{ aws_region }}.{{ aws_instanceType }}.01"
-        region: "{{ aws_region }}"
-        keypair: "{{ aws_keypair }}"
-        group: "loadtest"
-        instance_type: "{{ aws_instanceType }}"
-        image: "{{ aws_image }}"
-        count: 1
-        vpc_subnet_id: "{{ vpc.subnets[0].id }}"
-        assign_public_ip: True
-        # TODO: wait until instance is ready!
-        wait: yes
-  with_sequence: count=3
-  # TODO: register instance + idempotent instances
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-database1
+    exact_count: 1
+    count_tag:
+      role: openstack-database1
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.101
+    wait: yes
+  with_items:
+    - instance_name: 'database1'
+  register: database1
 
-- name: Provision EC2 instances - zone 1
+- name: Provision EC2 instance - database2 
   local_action:
-        module: ec2
-        state: present
-        region: "{{ aws_region }}"
-        keypair: "{{ aws_keypair }}"
-        group: "loadtest"
-        instance_type: "{{ aws_instanceType }}"
-        image: "{{ aws_image }}"
-        count: 1
-        vpc_subnet_id: "{{ item.id }}"
-        assign_public_ip: True
-        wait: yes
-  register: ec2_instances_zone1
-  with_items: vpc.subnets
-  when: item.cidr == '10.10.10.0/24'
-- debug: var=vpc
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-database2
+    exact_count: 1
+    count_tag:
+      role: openstack-database2
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.102
+    wait: yes
+  with_items:
+    - instance_name: 'database2'
+  register: database2
+
+- name: Provision EC2 instance - database3 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-database3
+    exact_count: 1
+    count_tag:
+      role: openstack-database3
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.103
+    wait: yes
+  with_items:
+    - instance_name: 'database3'
+  register: database3
+
+- name: Provision EC2 instance - controller 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-controller
+    exact_count: 1
+    count_tag:
+      role: openstack-controller
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.104
+    wait: yes
+  with_items:
+    - instance_name: 'controller'
+  register: controller
+
+- name: Provision EC2 instance - network 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-network
+    exact_count: 1
+    count_tag:
+      role: openstack-network
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.105
+    wait: yes
+  with_items:
+    - instance_name: 'network'
+  register: network
+
+- name: Provision EC2 instance - compute 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute
+    exact_count: 1
+    count_tag:
+      role: openstack-compute
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.106
+    wait: yes
+  with_items:
+    - instance_name: 'compute'
+  register: compute
+
+- name: Provision EC2 instance - benchmark 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-benchmark
+    exact_count: 1
+    count_tag:
+      role: openstack-benchmark
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.107
+    wait: yes
+  with_items:
+    - instance_name: 'benchmark'
+  register: benchmark
+
+- name: Add host addresses to inventory (hosts)
+  template: 
+    src=hosts.j2
+    dest="{{ inventory_dir }}/hosts"
+

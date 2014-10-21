@@ -59,16 +59,10 @@ hosts: network
     shell: ovs-vsctl list-ports br-ex
     register: ovs_br_ex_port_list
    
-  # hardcoded for now to eth1
-  # changed to eth0 by Peter
-  - name: create the interface port for the private network
-    shell: ovs-vsctl add-port br-ex {{ EXT_INTERFACE }}
-    when: ovs_br_ex_port_list.stdout.find("{{ EXT_INTERFACE}}") == -1
+  # - name: create the interface port for the private network
+  #   shell: ovs-vsctl add-port br-ex {{ EXT_INTERFACE }}
+  #   when: ovs_br_ex_port_list.stdout.find("{{ EXT_INTERFACE}}") == -1
     
-  - name: remove gro from the private network
-    shell: ethtool -K {{ EXT_INTERFACE }} gro off
+    # TODO check if br-ex is configured already
 
-  # TODO check if br-ex is configured already
-
-  - name: configure ext gw ip on ext interface
-    shell: ifconfig {{ EXT_BRIDGE }} {{ EXT_NETWORK_GATEWAY }} up
+  

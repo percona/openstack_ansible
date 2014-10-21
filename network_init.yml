@@ -1,5 +1,5 @@
 ---
 - hosts: network
   roles:
-    - common
+    - db_haproxy
     - network_init

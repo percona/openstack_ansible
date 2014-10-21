@@ -1,0 +1,16 @@
+---
+
+- name: restart mysql
+  service: 
+    name: mysql 
+    state: restarted
+
+- name: stop mysql
+  service:
+    name: mysql
+    state: stopped
+
+- name: restart xinetd
+  service:
+    name: xinetd
+    state: restarted

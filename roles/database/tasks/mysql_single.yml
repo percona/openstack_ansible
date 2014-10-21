@@ -1,0 +1,86 @@
+- name: write the mysql config file
+  template: 
+    src: my.cnf-pxc.j2 
+    dest: /etc/mysql/my.cnf 
+    owner: root 
+    group: root 
+    mode: 0644
+  notify:
+    - restart mysql
+
+- name: get xvdb mount state
+  shell: mount | awk '/xvdb/ {print $3}'
+  register: xvdb_mounted
+  ignore_errors: true
+
+- debug: var=xvdb_mounted.stdout
+
+- name: umount xvdb
+  shell: umount -l /dev/xvdb
+  when: xvdb_mounted.stdout != '/var/lib/mysql'
+  ignore_errors: true
+
+- name: make filesystem on xvdb
+  shell: mkfs.ext4 -b 4096 /dev/xvdb
+  when: xvdb_mounted.stdout != '/var/lib/mysql'
+
+- name: create mysql group
+  group:
+    name: mysql
+    state: present
+
+- name: create mysql user
+  user:
+    name: mysql
+    group: mysql
+    state: present
+
+- name: create datadir
+  file: 
+    name: /var/lib/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+
+- mount: 
+    name: /mnt
+    src: /dev/xvdb 
+    fstype: auto
+    state: absent
+
+- mount: 
+    name: /var/lib/mysql 
+    src: /dev/xvdb 
+    fstype: ext4 
+    opts: defaults,noatime,nodiratime 
+    state: present
+
+- name: mount filesystems
+  shell: mount -a
+
+- name: Mysql | Set root password
+  shell: cat 'mysql-server mysql-server/root_password password {{ MYSQL_ROOT_PASS }}' | debconf-set-selections 
+
+- name: Mysql | Set root repassword
+  shell: cat 'mysql-server mysql-server/root_password_again {{ MYSQL_ROOT_PASS }}' | debconf-set-selections
+
+- name: percona-server-server-5.6 package
+  apt: 
+    pkg: percona-server-server-5.6 
+    state: installed
+
+- name: check for installed db
+  shell: ls /var/lib/mysql/mysql/db.MYD
+  register: install_done
+  ignore_errors: true
+
+- name: run mysql_install_db
+  shell: mysql_install_db --user=mysql
+  when: install_done.rc != 0
+  
+- name: Start Percona server
+  service: 
+    name: mysql 
+    state: started 
+    enabled: true

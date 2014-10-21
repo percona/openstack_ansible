@@ -35,7 +35,7 @@ ram_allocation_ratio = 100000
 cpu_allocation_ratio = 100000
 
 [database]
-connection = mysql://nova:{{ NOVA_DBPASS }}@{{ ansible_hostname }}/nova
+connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_host }}/nova
 
 [keystone_authtoken]
 auth_uri = http://{{ ansible_hostname }}:5000

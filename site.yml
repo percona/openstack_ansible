@@ -11,7 +11,12 @@
     - name: apt-get upgrade
       apt: upgrade=yes state=latest
 
-- include: controller_init.yml
+- include: common.yml
+- include: pxc_bootstrap.yml
+- include: pxc_node.yml
+- include: controller_rabbitmq.yml
+- include: controller_keystone.yml
+- include: controller_glance.yml
 - include: compute_init.yml
 - include: network_init.yml
 - include: controller_nova.yml
@@ -24,9 +29,4 @@
 - include: controller_cinder.yml
 - include: service_cinder.yml
 - include: controller_heat.yml
-- include: controller_ceilometer.yml
-- include: compute_ceilometer.yml
-- include: controller_initial_setup.yml
-- include: network_initial_setup.yml
-- include: compute_initial_setup.yml
 - include: rally_node.yml

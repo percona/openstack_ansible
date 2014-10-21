@@ -32,7 +32,7 @@ admin_password = {{ NEUTRON_PASS }}
 #root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
 
 [database]
-connection = mysql://neutron:{{ NEUTRON_DBPASS }}@{{ ansible_hostname }}/neutron
+connection = mysql://neutron:{{ NEUTRON_DBPASS }}@{{ database_host }}/neutron
 [service_providers]
 service_provider=LOADBALANCER:Haproxy:neutron.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
 service_provider=VPN:openswan:neutron.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default

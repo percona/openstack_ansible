@@ -7,7 +7,7 @@ mechanism_drivers = openvswitch
 [ml2_type_gre]
 tunnel_id_ranges = 1:1000
 [ovs]
-local_ip = {{ ansible_eth1.ipv4.address }}
+local_ip = {{ ansible_eth0.ipv4.address }}
 tunnel_type = gre
 enable_tunneling = True
 [ml2_type_vxlan]

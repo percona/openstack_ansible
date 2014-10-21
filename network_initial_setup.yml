@@ -1,5 +1,4 @@
 ---
 - hosts: network
   roles:
-    - common
     - network_initial_setup
