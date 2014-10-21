@@ -7,7 +7,7 @@ Tools
 To generate all the passwords for Openstack, just do, for the to level directory::
 
 ```
-	./tools/gen_openstack_passwords.sh
+./tools/gen_openstack_passwords.sh
 ```
 
 You need to set up in aws access in .boto.
