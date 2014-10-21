@@ -12,7 +12,8 @@
       apt: upgrade=yes state=latest
 
 - include: common.yml
-- include: database.yml
+- include: pxc_bootstrap.yml
+- include: pxc_node.yml
 - include: controller_rabbitmq.yml
 - include: controller_keystone.yml
 - include: controller_glance.yml

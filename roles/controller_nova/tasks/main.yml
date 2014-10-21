@@ -4,6 +4,7 @@
   apt: pkg={{ item }} state=installed
   tags: nova
   with_items:
+    - python-mysqldb
     - nova-api
     - nova-cert
     - nova-conductor

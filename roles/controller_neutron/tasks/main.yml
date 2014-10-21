@@ -36,6 +36,7 @@
   apt: pkg={{ item }} state=installed
   tags: neutron
   with_items:
+    - python-mysqldb
     - neutron-server
     - neutron-plugin-ml2
 

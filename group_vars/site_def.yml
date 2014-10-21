@@ -18,4 +18,4 @@ DEMO_GATEWAY: 172.18.0.1
 DEMO_CIDR: 172.18.0.0/16
 DEMO_ROUTER: demo-router
 
-database_host: database
+database_host: database1

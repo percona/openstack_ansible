@@ -1,0 +1,4 @@
+---
+- hosts: pxc_node
+  roles:
+    - pxc_node

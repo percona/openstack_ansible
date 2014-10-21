@@ -4,6 +4,7 @@
   apt: pkg={{ item }} state=installed
   tags: keystone
   with_items:
+    - python-mysqldb
     - keystone
     - python-keystone
 

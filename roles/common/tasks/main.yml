@@ -14,8 +14,8 @@
 
 - name: percona apt repository src
   apt_repository: 
-  repo: 'deb-src http://repo.percona.com/apt trusty main' 
-  state: present
+    repo: 'deb-src http://repo.percona.com/apt trusty main' 
+    state: present
 
 - name: generate hosts file
   template:
@@ -36,10 +36,9 @@
     pkg: "{{ item }}"
     state: installed
   with_items:
-    - percona-server-client-5.6
-    - python-mysqldb
     - python-software-properties
     - ntp
+    - sysstat
 
 - name: start and enable ntp
   service: 

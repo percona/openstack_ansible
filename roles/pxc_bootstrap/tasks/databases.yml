@@ -1,0 +1,11 @@
+- name: create mysql database
+  mysql_db: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - keystone
+    - glance
+    - nova
+    - neutron
+    - cinder
+    - heat

@@ -4,6 +4,7 @@
   apt: pkg={{ item }} state=installed
   tags: glance
   with_items:
+    - python-mysqldb
     - glance
     - python-glanceclient
 

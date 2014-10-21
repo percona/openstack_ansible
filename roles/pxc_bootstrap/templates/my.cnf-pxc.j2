@@ -1,0 +1,42 @@
+[client]
+port            = 3306
+socket          = /var/run/mysqld/mysqld.sock
+
+[mysqld_safe]
+socket          = /var/run/mysqld/mysqld.sock
+nice            = 0
+
+[mysqld]
+server_id = 1
+innodb_buffer_pool_size = 4G
+innodb_log_file_size = 1G
+innodb_flush_log_at_trx_commit = 1
+innodb_autoinc_lock_mode = 2
+datadir = /var/lib/mysql
+log_bin = /var/lib/mysql/mysql-bin
+binlog_format = ROW
+slow_query_log = ON
+slow_query_log_file = /var/lib/mysql/slow.log
+long_query_time = 0
+log_slow_verbosity = full
+slow_query_log_use_global_control = all
+log-error = /var/lib/mysql/error.log
+default-storage-engine = innodb
+innodb_file_per_table
+collation-server = utf8_general_ci
+init-connect = 'SET NAMES utf8'
+character-set-server = utf8 
+slow_query_log_timestamp_always = 1 
+slow_query_log_timestamp_precision = microsecond       
+
+wsrep_provider = /usr/lib/galera3/libgalera_smm.so
+wsrep_cluster_address = gcomm://database1,database2,database3
+wsrep_slave_threads = 2
+wsrep_cluster_name = stackpxc
+wsrep_sst_method = xtrabackup
+wsrep_node_name = {{ ansible_fqdn }}
+wsrep_sst_auth = sst:sst
+
+[xtrabackup]
+user = sst
+password = sst

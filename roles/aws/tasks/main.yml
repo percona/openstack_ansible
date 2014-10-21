@@ -34,7 +34,7 @@
       - proto: all
         cidr_ip: 10.10.10.0/24
 
-- name: Provision EC2 instance - database 
+- name: Provision EC2 instance - database1 
   local_action:
     module: ec2
     region: "{{ aws_region }}"
@@ -43,17 +43,59 @@
     instance_type: "{{ aws_instanceType }}"
     image: "{{ aws_image }}"
     instance_tags:
-      role: openstack-database
+      role: openstack-database1
     exact_count: 1
     count_tag:
-      role: openstack-database
+      role: openstack-database1
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
     private_ip: 10.10.10.101
     wait: yes
   with_items:
-    - instance_name: 'database'
-  register: database
+    - instance_name: 'database1'
+  register: database1
+
+- name: Provision EC2 instance - database2 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-database2
+    exact_count: 1
+    count_tag:
+      role: openstack-database2
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.102
+    wait: yes
+  with_items:
+    - instance_name: 'database2'
+  register: database2
+
+- name: Provision EC2 instance - database3 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-database3
+    exact_count: 1
+    count_tag:
+      role: openstack-database3
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.103
+    wait: yes
+  with_items:
+    - instance_name: 'database3'
+  register: database3
 
 - name: Provision EC2 instance - controller 
   local_action:
@@ -70,7 +112,7 @@
       role: openstack-controller
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.102
+    private_ip: 10.10.10.104
     wait: yes
   with_items:
     - instance_name: 'controller'
@@ -91,7 +133,7 @@
       role: openstack-network
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.103
+    private_ip: 10.10.10.105
     wait: yes
   with_items:
     - instance_name: 'network'
@@ -112,7 +154,7 @@
       role: openstack-compute
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.104
+    private_ip: 10.10.10.106
     wait: yes
   with_items:
     - instance_name: 'compute'
@@ -133,7 +175,7 @@
       role: openstack-benchmark
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.105
+    private_ip: 10.10.10.107
     wait: yes
   with_items:
     - instance_name: 'benchmark'
