@@ -1,4 +1,5 @@
 ---
 - hosts: controller 
   roles:
+    - db_haproxy
     - controller_keystone

@@ -1,1 +1,2 @@
 group_vars/openstack_password.yml
+group_vars/additional_ssh_keys.yml

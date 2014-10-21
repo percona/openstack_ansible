@@ -30,6 +30,7 @@
 
 # Site variables
 - include_vars: group_vars/site_def.yml
+- include_vars: group_vars/additional_ssh_keys.yml
 
 - name: install packages
   apt:
@@ -46,3 +47,9 @@
     state: running 
     enabled: yes
 
+- name: add additional ssh keys
+  lineinfile:
+    dest: /home/ubuntu/.ssh/authorized_keys
+    line: "{{ item }}"
+    state: present
+  with_items: additional_ssh_keys

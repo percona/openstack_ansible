@@ -1,4 +1,5 @@
 ---
 - hosts: benchmark
   roles:
+    - db_haproxy
     - rally_node
