@@ -91,5 +91,13 @@
     group: root
     mode: 0644
 
+- name: render rally boot_server
+  template:
+    src: boot_server_quota.json.j2
+    dest: /var/tmp/boot_server_quota.json
+    owner: root
+    group: root
+    mode: 0644
+
 - name: make rally use the deployment
   shell: rally use deployment --uuid {{ rally_deployment_uuid.stdout }}

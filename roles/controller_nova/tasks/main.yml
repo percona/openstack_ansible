@@ -60,14 +60,14 @@
     name: "{{ item }}"
     state: restarted
   with_items:
-    - nova-api
     - nova-cert
     - nova-consoleauth
+    - nova-novncproxy
     - nova-conductor
     - nova-scheduler
-    - nova-novncproxy
+    - nova-api
 
-# TODO why
+# TODO why (restart order was not correct)
 - name: sleep
   shell: sleep 5
 
