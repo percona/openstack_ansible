@@ -69,7 +69,7 @@
 
 # TODO why (restart order was not correct)
 - name: sleep
-  shell: sleep 5
+  shell: sleep 20
 
 - name: check for ssh keypair
   shell: . /root/.openstack_demo.rc ; nova keypair-list | grep demo-key

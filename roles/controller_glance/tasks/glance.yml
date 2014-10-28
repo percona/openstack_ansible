@@ -12,7 +12,22 @@
   file: path=/var/lib/glance/glance.sqlite state=absent
 
 - name: write the glance-api config file
-  template: src=glance-api.conf.j2 dest=/etc/glance/glance-api.conf owner=root group=root mode=0644
+  template: 
+    src: glance-api.conf.j2 
+    dest: /etc/glance/glance-api.conf 
+    owner: root 
+    group: root 
+    mode: 0644
+  notify:
+    - restart glance-api
+
+- name: write glance policy.json file
+  template:
+    src: policy.json.j2
+    dest: /etc/glance/policy.json
+    owner: root
+    group: root
+    mode: 0644
   notify:
     - restart glance-api
 

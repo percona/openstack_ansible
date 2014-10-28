@@ -9,5 +9,6 @@ then
   keystone role-create --name=admin
   keystone tenant-create --name=admin --description="Admin Tenant"
   keystone user-role-add --user=admin --tenant=admin --role=admin
+  keystone role-create --name _member_
   keystone user-role-add --user=admin --role=_member_ --tenant=admin
 fi

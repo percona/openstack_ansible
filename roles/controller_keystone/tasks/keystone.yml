@@ -30,10 +30,20 @@
 - name: render keystone init template
   template: src=keystone_init.sh.j2 dest=/var/tmp/keystone_init.sh owner=root group=root mode=0755
 
+- name: restart keystone
+  service:
+    name: keystone
+    state: restarted
+
+- name: sleep a bit
+  shell: sleep 5
+
 - name: initialize keystone
   shell: /var/tmp/keystone_init.sh
 
-- file: path=/var/tmp/keystone_init.sh state=absent
+# - file: 
+#     path: /var/tmp/keystone_init.sh 
+#     state: absent
 
 - name: creates the openstack_admin.rc
   template: src=openstack_admin.rc.j2 dest=/root/.openstack_admin.rc owner=root group=root mode=0600

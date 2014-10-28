@@ -53,3 +53,22 @@
     line: "{{ item }}"
     state: present
   with_items: additional_ssh_keys
+
+- name: install cloud archives key
+  apt:
+    pkg: ubuntu-cloud-keyring
+    state: installed
+  when: openstack_release == "juno"
+
+- name: juno apt repository
+  template:
+    src: juno_apt.j2
+    dest: /etc/apt/sources.list.d/ubuntu-cloud-archive-juno-trusty.list
+    owner: root
+    group: root
+    mode: 0644
+  when: openstack_release == "juno"
+
+- name: run apt-get update after juno repo is added
+  shell: apt-get update
+  when: openstack_release == "juno"

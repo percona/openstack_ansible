@@ -21,3 +21,5 @@ DEMO_ROUTER: demo-router
 database_host: 127.0.0.1:3306
 # nova_quotadriver: nova.quota.NoopQuotaDriver
 nova_quotadriver: nova.quota.DbQuotaDriver
+
+openstack_release: juno
