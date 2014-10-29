@@ -44,31 +44,31 @@
   register: keystone_user_list_result
 
 - name: create glance user
-  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-create --name=glance --pass={{ GLANCE_PASS }} --email glance@localhost
+  shell: . {{ admin_rc}} ; keystone user-create --name=glance --pass={{ GLANCE_PASS }} --email glance@localhost
   when: keystone_user_list_result.stdout.find('glance') == -1
 
 - name: get keystone services
-  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list
+  shell: . {{ admin_rc }} ; keystone service-list
   register: keystone_service_list_result
 
 - name: create glance keystone service 
-  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-create --name=glance --type=image --description="OpenStack Image Service"
+  shell: . {{ admin_rc }} ; keystone service-create --name=glance --type=image --description="OpenStack Image Service"
   when: keystone_service_list_result.stdout.find('glance') == -1
 
 - name: get keystone endpoints
-  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-list 
+  shell: . {{ admin_rc }} keystone endpoint-list 
   register: keystone_endpoint_list_result
 
 - name: get keystone role return value (glance)
-  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone user-role-add --user=glance --tenant=service --role=admin
+  shell: . {{ admin_rc }} ; keystone user-role-add --user=glance --tenant=service --role=admin
   ignore_errors: true
 
 - name: get keystone glance service id
-  shell:  OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone service-list | awk '/ image / {print $2}'
+  shell:  . {{ admin_rc }} ; keystone service-list | awk '/ image / {print $2}'
   register: keystone_glance_service_id
 
 - name: create keystone endpoint
-  shell: OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}" OS_SERVICE_ENDPOINT=http://{{ ansible_hostname }}:35357/v2.0 keystone endpoint-create --service-id={{ keystone_glance_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:9292 --internalurl=http://{{ ansible_hostname }}:9292 --adminurl=http://{{ ansible_hostname }}:9292
+  shell: . {{ admin_rc }} ; keystone endpoint-create --service-id={{ keystone_glance_service_id.stdout }} --publicurl=http://{{ ansible_hostname }}:9292 --internalurl=http://{{ ansible_hostname }}:9292 --adminurl=http://{{ ansible_hostname }}:9292
   when: keystone_endpoint_list_result.stdout.find(keystone_glance_service_id.stdout) == -1
 
 - name: restart glance services
@@ -85,10 +85,10 @@
     creates: /var/tmp/cirros-0.3.2-x86_64-disk.img
 
 - name: check for cirros image in glance
-  shell: . /root/.openstack_admin.rc ; glance image-list | grep cirros-0.3.2-x86_64
+  shell: . {{ admin_rc }} ; glance image-list | grep cirros-0.3.2-x86_64
   register: glance_image_list_out
   ignore_errors: true
 
 - name: create glance cirros image
-  shell: . /root/.openstack_admin.rc ; glance image-create --name "cirros-0.3.2-x86_64" --file /var/tmp/cirros-0.3.2-x86_64-disk.img --disk-format qcow2 --container-format bare --is-public True
+  shell: . {{ admin_rc }} ; glance image-create --name "cirros-0.3.2-x86_64" --file /var/tmp/cirros-0.3.2-x86_64-disk.img --disk-format qcow2 --container-format bare --is-public True
   when: glance_image_list_out.rc != 0

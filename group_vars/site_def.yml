@@ -22,4 +22,8 @@ database_host: 127.0.0.1:3306
 # nova_quotadriver: nova.quota.NoopQuotaDriver
 nova_quotadriver: nova.quota.DbQuotaDriver
 
-openstack_release: juno
+# openstack_release: juno
+openstack_release: icehouse
+
+admin_rc: /root/.openstack_admin.rc
+demo_rc: /root/.openstack_demo.rc

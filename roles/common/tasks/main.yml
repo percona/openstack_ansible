@@ -72,3 +72,11 @@
 - name: run apt-get update after juno repo is added
   shell: apt-get update
   when: openstack_release == "juno"
+
+- name: check what /bin/sh is
+  shell: ls -la /bin/sh | awk '{print $NF}'
+  register: bin_sh_points_to
+
+- name: /bin/sh should be bash not dash
+  shell: rm -f /bin/sh ; ln -s /bin/bash /bin/sh
+  when: bin_sh_points_to != "/bin/bash"

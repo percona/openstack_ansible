@@ -14,14 +14,25 @@
             },
             "runner": {
                 "type": "constant",
-                "times": 10,
-                "concurrency": 2
+                "times": 1000,
+                "concurrency": 24
             },
             "context": {
                 "users": {
                     "tenants": 3,
                     "users_per_tenant": 2
+                },
+                "quotas": {
+                  "nova": {
+                    "instances": -1,
+                    "cores": -1,
+                    "ram": -1
+                  },
+                  "neutron": {
+                    "port": -1
+                  }
                 }
+
             }
         }
     ]
