@@ -24,7 +24,10 @@
   shell: su -s /bin/sh -c "nova-manage db sync" nova
 
 - name: create nova service user
-  keystone_user: tenant=service role=admin user=nova email="nova@localhost" password={{ NOVA_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: tenant=service user=nova email="nova@localhost" password={{ NOVA_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- name: add role to nova service user
+  keystone_user: tenant=service role=admin user=nova login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
 
 - name: check for ssh keypair
   shell: source {{ demo_rc }} ; nova keypair-list | grep demo-key

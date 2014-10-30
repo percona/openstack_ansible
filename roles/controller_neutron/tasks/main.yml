@@ -29,7 +29,10 @@
     - restart neutron-server
 
 - name: create neutron service user
-  keystone_user: tenant=service role=admin user=neutron email="neutron@localhost" password={{ NEUTRON_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: tenant=service user=neutron email="neutron@localhost" password={{ NEUTRON_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- name: add role to neutron service user
+  keystone_user: tenant=service role=admin user=neutron login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
 
 # TODO find out why is this needed
 - name: sleep a bit

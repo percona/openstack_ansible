@@ -40,7 +40,10 @@
   shell: su -s /bin/sh -c "glance-manage db_sync" glance
 
 - name: create glance service user
-  keystone_user: tenant=service role=admin user=glance email="glance@localhost" password={{ GLANCE_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: tenant=service user=glance email="glance@localhost" password={{ GLANCE_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- name: add role to glance service user
+  keystone_user: tenant=service role=admin user=glance login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
 
 - name: get initial glance image
   shell: wget -O /var/tmp/cirros-0.3.2-x86_64-disk.img http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img

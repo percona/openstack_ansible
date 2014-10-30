@@ -93,4 +93,7 @@
   keystone_user: tenant=demo tenant_description="Demo tenant" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
 
 - name: create demo user
-  keystone_user: tenant=demo role="_member_" user=demo password="demo" email="demo@example.com" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: tenant=demo user=demo password="demo" email="demo@example.com" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- name: add role to demo user
+  keystone_user: tenant=demo role="_member_" user=demo email="demo@example.com" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
