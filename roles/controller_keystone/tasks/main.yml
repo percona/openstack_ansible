@@ -32,10 +32,10 @@
   file: dest=/var/www state=directory owner=keystone group=nogroup mode=0755
 
 - name: ensure WSGI application main container files written
-  file: dest=/var/www/main src=/usr/share/openstack/keystone/httpd/keystone.py state=link owner=keystone group=nogroup mode=0744
+  copy: src=keystone.py dest=/var/www/main owner=keystone group=nogroup mode=0744
   
 - name: ensure WSGI application admin container files written
-  file: dest=/var/www/admin src=/usr/share/openstack/keystone/httpd/keystone.py state=link owner=keystone group=nogroup mode=0744
+  copy: src=keystone.py dest=/var/www/admin owner=keystone group=nogroup mode=0744
 
 - name: remove old sqlite db file
   file: path=/var/lib/keystone/keystone.db state=absent
