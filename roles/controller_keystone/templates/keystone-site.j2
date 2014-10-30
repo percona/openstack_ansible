@@ -1,5 +1,3 @@
-WSGIDaemonProcess keystone user=keystone group=nogroup processes=3 threads=10
-
 Listen *:5000
 <VirtualHost *:5000>
 LogLevel warn
@@ -7,6 +5,7 @@ ErrorLog ${APACHE_LOG_DIR}/keystone-5000-error.log
 CustomLog ${APACHE_LOG_DIR}/keystone-5000-access.log combined
 
 WSGIScriptAlias / /var/www/main
+WSGIDaemonProcess keystone user=keystone group=nogroup processes=3 threads=10
 WSGIProcessGroup keystone
 
 </VirtualHost>
@@ -18,6 +17,7 @@ ErrorLog ${APACHE_LOG_DIR}/keystone-35357-error.log
 CustomLog ${APACHE_LOG_DIR}/keystone-35357-access.log combined
 
 WSGIScriptAlias / /var/www/admin
+WSGIDaemonProcess keystoneadm user=keystone group=nogroup processes=1 threads=10
 WSGIProcessGroup keystone
 
 </VirtualHost>

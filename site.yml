@@ -3,6 +3,9 @@
 
 # A noop to trigger fact collection
 - hosts: all
+  user: ubuntu
+  roles:
+    - common
   tasks:
     - name: gtfo
       file: path=/etc/hosts state=touch
@@ -11,22 +14,9 @@
     # - name: apt-get upgrade
     #   apt: upgrade=yes state=latest
 
-- include: common.yml
 - include: pxc_bootstrap.yml
 - include: pxc_node.yml
-- include: controller_rabbitmq.yml
-- include: controller_keystone.yml
-- include: controller_glance.yml
-- include: compute_init.yml
-- include: network_init.yml
-- include: controller_nova.yml
-- include: compute_nova.yml
-- include: controller_neutron.yml
-- include: compute_neutron.yml
-- include: network_neutron.yml
-- include: initial_networks.yml
-- include: controller_dashboard.yml
-- include: controller_cinder.yml
-- include: service_cinder.yml
-- include: controller_heat.yml
+- include: controller.yml
+- include: network.yml
+- include: compute.yml
 - include: rally_node.yml

@@ -1,4 +1,0 @@
----
-- hosts: compute
-  roles:
-    - service_cinder

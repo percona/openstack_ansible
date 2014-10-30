@@ -1,4 +1,7 @@
 ---
 - hosts: network
+  user: ubuntu
   roles:
+    - db_haproxy
+    - network_init
     - network_neutron
