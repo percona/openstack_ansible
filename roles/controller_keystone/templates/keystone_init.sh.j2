@@ -12,3 +12,23 @@ then
   keystone role-create --name _member_
   keystone user-role-add --user=admin --role=_member_ --tenant=admin
 fi
+
+if [[ k`keystone service-list` == 'k' ]]
+then
+  SERVICE_ID=`keystone service-create --name=keystone --type=identity --description="OpenStack Identity" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:5000/v2.0 --internalurl=http://{{ ansible_hostname }}:5000/v2.0 --adminurl=http://{{ ansible_hostname }}:35357/v2.0
+  SERVICE_ID=`keystone service-create --name=nova --type=compute --description="OpenStack Compute" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8774/v2/%\(tenant_id\)s
+  SERVICE_ID=`keystone service-create --name=cinder --type=volume --description="OpenStack Block Storage" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:8776/v1/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8776/v1/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8776/v1/%\(tenant_id\)s
+  SERVICE_ID=`keystone service-create --name=cinderv2 --type=volumev2 --description="OpenStack Block Storage v2" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:8776/v2/%\(tenant_id\)s --internalurl=http://{{ ansible_hostname }}:8776/v2/%\(tenant_id\)s --adminurl=http://{{ ansible_hostname }}:8776/v2/%\(tenant_id\)s
+  SERVICE_ID=`keystone service-create --name=glance --type=image --description="OpenStack Image" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:9292 --internalurl=http://{{ ansible_hostname }}:9292 --adminurl=http://{{ ansible_hostname }}:9292
+  SERVICE_ID=`keystone service-create --name=heat --type=orchestration --description="OpenStack Orchestration" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:8004/v1 --internalurl=http://{{ ansible_hostname }}:8004/v1 --adminurl=http://{{ ansible_hostname }}:8004/v1
+  SERVICE_ID=`keystone service-create --name=heat-cfn --type=cloudformation --description="OpenStack CloudFormation" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:8000/v1 --internalurl=http://{{ ansible_hostname }}:8000/v1 --adminurl=http://{{ ansible_hostname }}:8000/v1
+  SERVICE_ID=`keystone service-create --name=neutron --type=network --description="OpenStack Network" | awk '/ id / {print $4}'`
+  keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ ansible_hostname }}:9696 --internalurl=http://{{ ansible_hostname }}:9696 --adminurl=http://{{ ansible_hostname }}:9696
+fi

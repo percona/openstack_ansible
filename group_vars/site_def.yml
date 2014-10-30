@@ -27,3 +27,5 @@ openstack_release: icehouse
 
 admin_rc: /root/.openstack_admin.rc
 demo_rc: /root/.openstack_demo.rc
+
+keystone_use_apache: true

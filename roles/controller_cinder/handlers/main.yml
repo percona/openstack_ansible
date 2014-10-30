@@ -3,3 +3,13 @@
 
 - name: restart cinder-api
   service: name=cinder-api state=restarted
+
+- name: restart cinder-volume
+  service: name=cinder-volume state=restarted
+  
+- name: restart cinder-all
+  service: name={{ item }} state=restarted
+  with_items:
+    - cinder-scheduler
+    - cinder-volume
+    - cinder-api
