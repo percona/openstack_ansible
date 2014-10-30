@@ -1,4 +1,0 @@
----
-- hosts: controller
-  roles:
-    - controller_ceilometer

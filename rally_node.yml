@@ -1,5 +1,6 @@
 ---
 - hosts: benchmark
+  user: ubuntu
   roles:
     - db_haproxy
     - rally_node

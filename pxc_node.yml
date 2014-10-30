@@ -1,4 +1,5 @@
 ---
 - hosts: pxc_node
+  user: ubuntu
   roles:
     - pxc_node

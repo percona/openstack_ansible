@@ -1,0 +1,14 @@
+---
+- hosts: controller
+  user: ubuntu
+  roles:
+    - rabbitmq
+    - db_haproxy
+    - controller_keystone
+    - controller_glance
+    - controller_cinder
+    - controller_nova
+    - controller_neutron
+    - controller_heat
+    - controller_dashboard
+    - initial_networks

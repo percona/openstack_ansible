@@ -1,4 +1,5 @@
 ---
 - hosts: pxc_bootstrap
+  user: ubuntu
   roles:
     - pxc_bootstrap

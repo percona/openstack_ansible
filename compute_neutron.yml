@@ -1,4 +1,0 @@
----
-- hosts: compute
-  roles:
-    - compute_neutron

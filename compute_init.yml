@@ -1,6 +1,0 @@
----
-- hosts: compute
-  roles:
-    - db_haproxy
-    - compute_init
-
