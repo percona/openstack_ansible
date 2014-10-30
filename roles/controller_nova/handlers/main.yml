@@ -22,9 +22,9 @@
 - name: restart nova-all
   service: name={{ item }} state=restarted
   with_items:
-    - nova-api
     - nova-cert
     - nova-consoleauth
     - nova-conductor
     - nova-scheduler
     - nova-novncproxy
+    - nova-api

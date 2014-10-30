@@ -1,3 +1,57 @@
---- 
+---
 
-- include: glance.yml
+- name: glance package
+  apt: pkg={{ item }} state=installed
+  tags: glance
+  with_items:
+    - python-mysqldb
+    - glance
+    - python-glanceclient
+
+- name: remove old sqlite db file
+  file: path=/var/lib/glance/glance.sqlite state=absent
+
+- name: write the glance-api config file
+  template: 
+    src: glance-api.conf.j2 
+    dest: /etc/glance/glance-api.conf 
+    owner: root 
+    group: root 
+    mode: 0644
+  notify:
+    - restart glance-api
+
+- name: write glance policy.json file
+  template:
+    src: policy.json.j2
+    dest: /etc/glance/policy.json
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart glance-api
+
+- name: write the glance-registry config file
+  template: src=glance-registry.conf.j2 dest=/etc/glance/glance-registry.conf owner=root group=root mode=0644
+  notify:
+    - restart glance-all
+
+- name: glance db_sync
+  shell: su -s /bin/sh -c "glance-manage db_sync" glance
+
+- name: create glance service user
+  keystone_user: tenant=service role=admin user=glance email="glance@localhost" password={{ GLANCE_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- name: get initial glance image
+  shell: wget -O /var/tmp/cirros-0.3.2-x86_64-disk.img http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img
+  args:
+    creates: /var/tmp/cirros-0.3.2-x86_64-disk.img
+
+- name: check for cirros image in glance
+  shell: . {{ admin_rc }} ; glance image-list | grep cirros-0.3.2-x86_64
+  register: glance_image_list_out
+  ignore_errors: true
+
+- name: create glance cirros image
+  shell: . {{ admin_rc }} ; glance image-create --name "cirros-0.3.2-x86_64" --file /var/tmp/cirros-0.3.2-x86_64-disk.img --disk-format qcow2 --container-format bare --is-public True
+  when: glance_image_list_out.rc != 0
