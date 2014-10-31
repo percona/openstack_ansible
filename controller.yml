@@ -1,8 +1,11 @@
 ---
 - hosts: controller
+  haproxy:
+    ha_pxc: true
+    ha_controller: true  
   user: ubuntu
   roles:
-    - db_haproxy
+    - haproxy
     - controller_keystone
     - controller_glance
     - controller_cinder
