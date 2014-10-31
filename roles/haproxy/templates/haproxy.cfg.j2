@@ -56,7 +56,7 @@ server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fa
  
 <% if haproxy['ha_controller'] %>
 
-<% for (name, port) in [ ("keystone", "5000"), ("nova-api", "8774") ] %>
+<% for (name, port) in [ ("keystone", "5000"), ("keystoneadm", "35357"), ("nova-api", "8774"), ("neutron", "9696") ] %>
 frontend {{ name }}-front
 bind *:{{ port }}
 mode tcp
