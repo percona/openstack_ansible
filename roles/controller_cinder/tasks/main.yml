@@ -17,3 +17,6 @@
 
 - name: add role to cinder service user
   keystone_user: tenant=service role=admin user=cinder login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- service: name=cinder-api state=restarted
+- service: name=cinder-scheduler state=restarted

@@ -1,7 +1,6 @@
 ---
 # file: site.yml
 
-# A noop to trigger fact collection
 - hosts: all
   user: ubuntu
   roles:

@@ -11,4 +11,3 @@
     - controller_neutron
     - controller_heat
     - controller_dashboard
-    - initial_networks

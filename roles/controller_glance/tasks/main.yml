@@ -34,13 +34,16 @@
 - name: write the glance-registry config file
   template: src=glance-registry.conf.j2 dest=/etc/glance/glance-registry.conf owner=root group=root mode=0644
   notify:
-    - restart glance-all
+    - restart glance-registry
 
 - name: glance db_sync
   shell: su -s /bin/sh -c "glance-manage db_sync" glance
 
 - name: create glance service user
   keystone_user: tenant=service user=glance email="glance@localhost" password={{ GLANCE_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+- service: name=glance-registry state=restarted
+- service: name=glance-api state=restarted
 
 - name: add role to glance service user
   keystone_user: tenant=service role=admin user=glance login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
