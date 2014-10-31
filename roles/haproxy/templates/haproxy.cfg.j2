@@ -65,9 +65,8 @@ default_backend {{ name }}-back
 backend {{ name }}-back
 mode tcp
 balance leastconn
-option httpchk
 <% for controller_ip in haproxy['controller_ips'] %>
-server controller{{ loop.index }} {{ controller_ip }}:{{ port }} check port 9200 inter 5000 rise 3 fall 3
+server controller{{ loop.index }} {{ controller_ip }}:{{ port }} 
 <% endfor %>
 
 <% endfor %>
