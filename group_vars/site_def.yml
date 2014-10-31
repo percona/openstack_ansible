@@ -20,6 +20,11 @@ DEMO_ROUTER: demo-router
 
 database_host: 127.0.0.1:3306
 rabbit_host: queue
+api_haproxy_host: 127.0.0.1
+keystone_user_service_port: 5000
+keystone_admin_service_port: 35357
+neutron_service_port: 9696
+nova_service_port: 8774
 # nova_quotadriver: nova.quota.NoopQuotaDriver
 nova_quotadriver: nova.quota.DbQuotaDriver
 

@@ -1,6 +1,6 @@
 {
     "type": "ExistingCloud",
-    "auth_url": "http://controller:35357/v2.0",
+    "auth_url": "http://{{ api_proxy_host }}:{{ keystone_admin_service_port }}/v2.0",
     "admin": {
         "username": admin,
         "password": {{ KEYSTONE_ADMIN_PASS }},

@@ -647,8 +647,8 @@ connection = mysql://glance:{{ GLANCE_DBPASS }}@{{ database_host }}/glance
 #db_max_retries = 20
 
 [keystone_authtoken]
-auth_host = {{ ansible_eth0.ipv4.address }}
-auth_port = 35357
+auth_host = {{ api_proxy_host }}
+auth_port = {{ keystone_admin_service_port }}
 auth_protocol = http
 admin_tenant_name = admin
 admin_user = admin

@@ -985,16 +985,16 @@ connection = mysql://heat:{{ HEAT_DBPASS }}@{{ database_host }}/heat
 
 [keystone_authtoken]
 
-auth_host = {{ ansible_hostname }}
-auth_port = 35357
+auth_host = {{ api_proxy_host }}
+auth_port = {{ keystone_admin_service_port }}
 auth_protocol = http
-auth_uri = http://{{ ansible_hostname }}:5000/v2.0
+auth_uri = http://{{ api_proxy_host }}:{{ keystone_admin_service_port }}/v2.0
 admin_tenant_name = service
 admin_user = heat
 admin_password = {{ HEAT_PASS }}
  
 [ec2authtoken]
-auth_uri = http://controller:5000/v2.0
+auth_uri = http://{{ api_proxy_host }}:{{ keystone_user_service_port }}/v2.0
 
 [matchmaker_redis]
 

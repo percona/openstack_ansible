@@ -24,19 +24,19 @@ my_ip = {{ ansible_eth0.ipv4.address }}
 vnc_enabled = True
 vncserver_listen = 0.0.0.0
 vncserver_proxyclient_address = {{ ansible_eth0.ipv4.address }}
-novncproxy_base_url = http://controller:6080/vnc_auto.html
+novncproxy_base_url = http://{{ ansible_eth0.ipv4.address }}:6080/vnc_auto.html
 
 compute_driver = nova.virt.fake.FakeDriver
 
-glance_host = controller
+glance_host = {{ api_proxy_host }}
 
 network_api_class = nova.network.neutronv2.api.API
-neutron_url = http://controller:9696
+neutron_url = http://{{ api_proxy_host }}:{{ neutron_service_port }}
 neutron_auth_strategy = keystone
 neutron_admin_tenant_name = service
 neutron_admin_username = neutron
 neutron_admin_password = {{ NEUTRON_PASS }}
-neutron_admin_auth_url = http://controller:35357/v2.0
+neutron_admin_auth_url = http://{{ api_proxy_host }}:{{ keystone_admin_service_port }}/v2.0
 linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
 firewall_driver = nova.virt.firewall.NoopFirewallDriver
 security_group_api = neutron
@@ -52,9 +52,9 @@ notification_driver = ceilometer.compute.nova_notifier
 connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_host }}/nova
  
 [keystone_authtoken]
-auth_uri = http://controller:5000
-auth_host = controller
-auth_port = 35357
+auth_uri = http://{{ api_proxy_host }}:{{ keystone_user_service_port }}
+auth_host = {{ api_proxy_host }} 
+auth_port = {{ keystone_admin_service_port }}
 auth_protocol = http
 admin_tenant_name = service
 admin_user = nova

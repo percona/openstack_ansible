@@ -23,9 +23,9 @@ notification_driver = cinder.openstack.common.notifier.rpc_notifier
 connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_host }}/cinder
 
 [keystone_authtoken]
-auth_uri = http://controller:5000
-auth_host = controller
-auth_port = 35357
+auth_uri = http://{{ api_proxy_host }}:{{ keystone_user_service_port }}
+auth_host = {{ api_proxy_host }}
+auth_port = {{ keystone_admin_service_port }}
 auth_protocol = http
 admin_tenant_name = service
 admin_user = cinder

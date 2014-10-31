@@ -80,6 +80,7 @@
 # This creates the Keystone admin tenant, role and user, and all the service endpoints
 - name: initialize keystone
   shell: /var/tmp/keystone_init.sh
+  when: db_init
 
 - name: creates the openstack_admin.rc
   template: src=openstack_admin.rc.j2 dest=/root/.openstack_admin.rc owner=root group=root mode=0600

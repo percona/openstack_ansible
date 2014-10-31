@@ -19,7 +19,7 @@ rabbit_password = {{ RABBIT_PASS }}
 control_exchange = cinder
 notification_driver = cinder.openstack.common.notifier.rpc_notifier
 
-glance_host = controller
+glance_host = {{ api_proxy_host }}
 
 [database]
 connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_host }}/cinder

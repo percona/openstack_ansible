@@ -16,12 +16,12 @@ vncserver_proxyclient_address = {{ ansible_eth0.ipv4.address }}
 auth_strategy = keystone
 
 network_api_class = nova.network.neutronv2.api.API
-neutron_url = http://{{ ansible_hostname }}:9696
+neutron_url = http://{{ api_proxy_host }}:{{ neutron_service_port }}
 neutron_auth_strategy = keystone
 neutron_admin_tenant_name = service
 neutron_admin_username = neutron
 neutron_admin_password = {{ NEUTRON_PASS }}
-neutron_admin_auth_url = http://{{ ansible_hostname }}:35357/v2.0
+neutron_admin_auth_url = http://{{ api_proxy_host }}:{{ keystone_admin_service_port }}/v2.0
 linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
 firewall_driver = nova.virt.firewall.NoopFirewallDriver
 security_group_api = neutron
@@ -40,9 +40,9 @@ quota_driver = {{ nova_quotadriver }}
 connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_host }}/nova
 
 [keystone_authtoken]
-auth_uri = http://{{ ansible_hostname }}:5000
-auth_host = {{ ansible_hostname }}
-auth_port = 35357
+auth_uri = http://{{ api_proxy_host }}:{{ keystone_user_service_port }}
+auth_host = {{ api_proxy_host }}
+auth_port = {{ keystone_admin_service_port }}
 auth_protocol = http
 admin_tenant_name = service
 admin_user = nova

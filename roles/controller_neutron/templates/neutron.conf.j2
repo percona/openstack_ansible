@@ -16,17 +16,17 @@ rabbit_password = {{ RABBIT_PASS }}
 
 notify_nova_on_port_status_changes = True
 notify_nova_on_port_data_changes = True
-nova_url = http://controller:8774/v2
+nova_url = http://{{ api_proxy_host }}:{{ nova_service_port }}/v2
 nova_admin_username = nova
 nova_admin_tenant_id = {{ keystone_service_tenant_id.stdout }}
 nova_admin_password = {{ NOVA_PASS }}
-nova_admin_auth_url = http://controller:35357/v2.0
+nova_admin_auth_url = http://{{ api_proxy_host }}:{{ keystone_admin_service_port }}/v2.0
 
 [keystone_authtoken]
-auth_uri = http://controller:5000
-auth_host = controller
+auth_uri = http://{{ api_proxy_host }}:{{ keystone_user_service_port }}
+auth_host = {{ api_proxy_host }}
 auth_protocol = http
-auth_port = 35357
+auth_port = {{ keystone_admin_service_port }}
 admin_tenant_name = service
 admin_user = neutron
 admin_password = {{ NEUTRON_PASS }}
