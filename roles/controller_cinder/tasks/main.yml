@@ -11,6 +11,7 @@
 
 - name: cinder db sync
   shell: su -s /bin/sh -c "cinder-manage db sync" cinder
+  when: db_init
 
 - name: create cinder service user
   keystone_user: tenant=service user=cinder email="cinder@localhost" password={{ CINDER_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}

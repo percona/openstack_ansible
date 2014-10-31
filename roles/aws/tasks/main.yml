@@ -97,7 +97,7 @@
     - instance_name: 'database3'
   register: database3
 
-- name: Provision EC2 instance - controller 
+- name: Provision EC2 instance - controller1 
   local_action:
     module: ec2
     region: "{{ aws_region }}"
@@ -115,8 +115,50 @@
     private_ip: 10.10.10.104
     wait: yes
   with_items:
-    - instance_name: 'controller'
-  register: controller
+    - instance_name: 'controller1'
+  register: controller1
+
+- name: Provision EC2 instance - controller2 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-controller
+    exact_count: 1
+    count_tag:
+      role: openstack-controller
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.105
+    wait: yes
+  with_items:
+    - instance_name: 'controller2'
+  register: controller2
+
+- name: Provision EC2 instance - controller3 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-controller
+    exact_count: 1
+    count_tag:
+      role: openstack-controller
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.106
+    wait: yes
+  with_items:
+    - instance_name: 'controller3'
+  register: controller3
 
 - name: Provision EC2 instance - network 
   local_action:
