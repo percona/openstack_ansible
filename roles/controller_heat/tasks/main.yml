@@ -10,7 +10,7 @@
 
 - name: generate heat configugration
   template: src=heat.conf.j2 dest=/etc/heat/heat.conf owner=root group=root mode=0644
-  notify: heat-all
+  notify: restart heat-all
 
 - name: heat db sync
   shell: su -s /bin/sh -c "heat-manage db_sync" heat

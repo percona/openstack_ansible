@@ -1,0 +1,46 @@
+- name: get current neutron nets
+  shell: source {{ admin_rc }} ; neutron net-list | grep {{ EXT_NET_NAME }} | wc -l
+  register: ext_net_exists
+
+- name: create ext net
+  shell: source {{ admin_rc }} ; neutron net-create {{ EXT_NET_NAME }} --shared --router:external=True
+  when: ext_net_exists.stdout == "0"
+
+- name: get current neutron subnets
+  shell: source {{ admin_rc }} ; neutron subnet-list | grep {{ EXT_SUBNET_NAME }} | wc -l
+  register: ext_subnet_exists
+
+- name: create neutron subnet
+  shell: source {{ admin_rc }} ; neutron subnet-create {{ EXT_NET_NAME }} --name {{ EXT_SUBNET_NAME }} --allocation-pool start={{ EXT_FLOATING_IP_START }},end={{ EXT_FLOATING_IP_END }} --disable-dhcp --gateway {{ EXT_NETWORK_GATEWAY }} {{ EXT_NETWORK_CIDR }}
+  when: ext_subnet_exists.stdout == "0"
+
+- name: get demo net
+  shell: source {{ demo_rc }} ; neutron net-list | grep {{ DEMO_NET_NAME }} | wc -l
+  register: demo_tenant_exists
+
+- name: create demo net
+  shell: source {{ demo_rc }} ; neutron net-create {{ DEMO_NET_NAME }}
+  when: demo_tenant_exists.stdout == "0"
+
+- name: get demo subnet
+  shell: source {{ demo_rc }} ; neutron subnet-list | grep {{ DEMO_SUBNET_NAME }} | wc -l
+  register: demo_subnet_exists
+
+- name: create demo net
+  shell: source {{ demo_rc }} ; neutron subnet-create {{ DEMO_NET_NAME }} --name {{ DEMO_SUBNET_NAME }} --gateway {{ DEMO_GATEWAY }} {{ DEMO_CIDR }}
+  when: demo_subnet_exists.stdout == "0"
+
+- name: get demo router
+  shell: source {{ demo_rc }} ; neutron router-list | grep {{ DEMO_ROUTER }} | wc -l
+  register: demo_router_exists
+
+- name: create demo router
+  shell: source {{ demo_rc }} ; neutron router-create {{ DEMO_ROUTER }}
+  when: demo_router_exists.stdout == "0"
+
+- name: neutron add router interface
+  shell: source {{ demo_rc }} ; neutron router-interface-add {{ DEMO_ROUTER }} {{ DEMO_SUBNET_NAME }}
+  ignore_errors: true
+
+- name: neutron set gateway for demo router
+  shell: source {{ demo_rc }} ; neutron router-gateway-set {{ DEMO_ROUTER }} {{ EXT_NET_NAME }}

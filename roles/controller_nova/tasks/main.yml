@@ -20,6 +20,8 @@
   template: src=nova.conf.j2 dest=/etc/nova/nova.conf owner=root group=root mode=0644
   notify: restart nova-all
 
+- service: name=nova-api state=restarted
+
 - name: nova db sync
   shell: su -s /bin/sh -c "nova-manage db sync" nova
 

@@ -8,6 +8,10 @@
     - neutron-server
     - neutron-plugin-ml2
 
+- name: gather keystone tenant id
+  shell: source {{ admin_rc }} ; keystone tenant-list | grep service | awk '{print $2}'
+  register: keystone_service_tenant_id
+
 - name: write the neutron config file
   template: 
     src: neutron.conf.j2 
@@ -34,6 +38,10 @@
 - name: add role to neutron service user
   keystone_user: tenant=service role=admin user=neutron login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
 
-# TODO find out why is this needed
-- name: sleep a bit
-  shell: sleep 5
+- service: name=neutron-server state=restarted
+
+- shell: source {{ admin_rc }} ; neutron network-list | grep service | awk '{print $2}'
+  register: networks_list
+
+- include: initial_networks.yml
+  when: networks_list.stdout.find("{{ EXT_NET_NAME }}") == -1
