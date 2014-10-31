@@ -1,0 +1,10 @@
+--- /usr/lib/python2.7/dist-packages/keystone/service.py.orig 2014-10-31 08:58:43.792205763 +0000
++++ /usr/lib/python2.7/dist-packages/keystone/service.py  2014-10-31 08:06:31.158999502 +0000
+@@ -94,6 +94,7 @@ def public_app_factory(global_conf, **lo
+ 
+ @fail_gracefully
+ def admin_app_factory(global_conf, **local_conf):
++    controllers.register_version('v2.0')
+     conf = global_conf.copy()
+     conf.update(local_conf)
+     return wsgi.ComposingRouter(routes.Mapper(),

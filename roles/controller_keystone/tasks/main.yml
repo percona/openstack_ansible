@@ -97,3 +97,27 @@
 
 - name: add role to demo user
   keystone_user: tenant=demo role="_member_" user=demo email="demo@example.com" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+
+# automated monkey patch for https://bugs.launchpad.net/mos/+bug/1382570
+
+- name: check if patch is needed
+  shell: grep controllers.register_version /usr/lib/python2.7/dist-packages/keystone/service.py | wc -l
+  register: keystone_patch_needed
+
+- name: render patch template
+  template:
+    src: keystone-admin-service-patch.diff.j2
+    dest: /var/tmp/keystone-admin-service-patch.diff
+    owner: root
+    group: root
+    mode: 0644
+
+- name: patch keystone
+  shell: patch /usr/lib/python2.7/dist-packages/keystone/service.py < /var/tmp/keystone-admin-service-patch.diff
+  when: keystone_patch_needed.stdout == "2"
+
+- name: restart apache
+  service:
+    name: apache2
+    state: restarted
+  when: keystone_use_apache
