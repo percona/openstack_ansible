@@ -31,3 +31,16 @@ demo_rc: /root/.openstack_demo.rc
 db_init: false
 
 keystone_use_apache: true
+
+haproxy:
+  ha_pxc: true
+  ha_controller: true
+  pxc_ips:
+    - 10.10.10.101
+    - 10.10.10.102
+    - 10.10.10.103
+
+  controller_ips:
+    - 10.10.10.104
+    - 10.10.10.105
+    - 10.10.10.106

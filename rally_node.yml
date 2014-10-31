@@ -1,6 +1,9 @@
 ---
 - hosts: benchmark
+  haproxy:
+    ha_pxc: true
+    ha_controller: true  
   user: ubuntu
   roles:
-    - db_haproxy
+    - haproxy
     - rally_node
