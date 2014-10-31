@@ -133,13 +133,13 @@
       role: openstack-network
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.105
+    private_ip: 10.10.10.107
     wait: yes
   with_items:
     - instance_name: 'network'
   register: network
 
-- name: Provision EC2 instance - compute 
+- name: Provision EC2 instance - queue 
   local_action:
     module: ec2
     region: "{{ aws_region }}"
@@ -148,17 +148,227 @@
     instance_type: "{{ aws_instanceType }}"
     image: "{{ aws_image }}"
     instance_tags:
-      role: openstack-compute
+      role: openstack-queue
     exact_count: 1
     count_tag:
-      role: openstack-compute
+      role: openstack-queue
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.106
+    private_ip: 10.10.10.108
     wait: yes
   with_items:
-    - instance_name: 'compute'
-  register: compute
+    - instance_name: 'queue'
+  register: queue
+
+- name: Provision EC2 instance - compute1 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute1
+    exact_count: 1
+    count_tag:
+      role: openstack-compute1
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.110
+    wait: yes
+  with_items:
+    - instance_name: 'compute1'
+  register: compute1
+
+- name: Provision EC2 instance - compute2 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute2
+    exact_count: 1
+    count_tag:
+      role: openstack-compute2
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.111
+    wait: yes
+  with_items:
+    - instance_name: 'compute2'
+  register: compute2
+
+- name: Provision EC2 instance - compute3 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute3
+    exact_count: 1
+    count_tag:
+      role: openstack-compute3
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.112
+    wait: yes
+  with_items:
+    - instance_name: 'compute3'
+  register: compute3
+
+- name: Provision EC2 instance - compute4 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute4
+    exact_count: 1
+    count_tag:
+      role: openstack-compute4
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.113
+    wait: yes
+  with_items:
+    - instance_name: 'compute4'
+  register: compute4
+
+- name: Provision EC2 instance - compute5 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute5
+    exact_count: 1
+    count_tag:
+      role: openstack-compute5
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.114
+    wait: yes
+  with_items:
+    - instance_name: 'compute5'
+  register: compute5
+
+- name: Provision EC2 instance - compute6 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute6
+    exact_count: 1
+    count_tag:
+      role: openstack-compute6
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.115
+    wait: yes
+  with_items:
+    - instance_name: 'compute6'
+  register: compute6
+
+- name: Provision EC2 instance - compute7 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute7
+    exact_count: 1
+    count_tag:
+      role: openstack-compute7
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.116
+    wait: yes
+  with_items:
+    - instance_name: 'compute7'
+  register: compute7
+
+- name: Provision EC2 instance - compute8 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute8
+    exact_count: 1
+    count_tag:
+      role: openstack-compute8
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.117
+    wait: yes
+  with_items:
+    - instance_name: 'compute8'
+  register: compute8
+
+- name: Provision EC2 instance - compute9 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute9
+    exact_count: 1
+    count_tag:
+      role: openstack-compute9
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.118
+    wait: yes
+  with_items:
+    - instance_name: 'compute9'
+  register: compute9
+
+- name: Provision EC2 instance - compute10 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_compute_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-compute10
+    exact_count: 1
+    count_tag:
+      role: openstack-compute10
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.119
+    wait: yes
+  with_items:
+    - instance_name: 'compute10'
+  register: compute10
 
 - name: Provision EC2 instance - benchmark 
   local_action:
@@ -175,7 +385,7 @@
       role: openstack-benchmark
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.107
+    private_ip: 10.10.10.150
     wait: yes
   with_items:
     - instance_name: 'benchmark'

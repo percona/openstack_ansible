@@ -42,6 +42,7 @@
 
 - name: keystone db_sync
   shell: su -s /bin/sh -c "keystone-manage db_sync" keystone
+  when: ansible_
 
 - name: install keystone apache site
   template: src=keystone-site.j2 dest=/etc/apache2/sites-available/keystone.conf owner=root group=root mode=0644

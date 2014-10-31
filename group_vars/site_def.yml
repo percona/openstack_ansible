@@ -19,6 +19,7 @@ DEMO_CIDR: 172.18.0.0/16
 DEMO_ROUTER: demo-router
 
 database_host: 127.0.0.1:3306
+rabbit_host: queue
 # nova_quotadriver: nova.quota.NoopQuotaDriver
 nova_quotadriver: nova.quota.DbQuotaDriver
 

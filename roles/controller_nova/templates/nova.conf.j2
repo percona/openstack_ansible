@@ -6,7 +6,7 @@ state_path=/var/lib/nova
 lock_path=/var/lock/nova
 
 rpc_backend = rabbit
-rabbit_host = {{ ansible_hostname }}
+rabbit_host = {{ rabbit_host }}
 rabbit_password = {{ RABBIT_PASS }}
 
 my_ip = {{ ansible_eth0.ipv4.address }}

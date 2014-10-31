@@ -15,7 +15,7 @@
   when: ext_subnet_exists.stdout == "0"
 
 - name: get demo net
-  shell: source {{ demo_rc }} ; neutron net-list | grep {{ DEMO_NET_NAME }} | wc -l
+  shell: source {{ admin_rc }} ; neutron net-list | grep {{ DEMO_NET_NAME }} | wc -l
   register: demo_tenant_exists
 
 - name: create demo net
@@ -23,24 +23,24 @@
   when: demo_tenant_exists.stdout == "0"
 
 - name: get demo subnet
-  shell: source {{ demo_rc }} ; neutron subnet-list | grep {{ DEMO_SUBNET_NAME }} | wc -l
+  shell: source {{ admin_rc }} ; neutron subnet-list | grep {{ DEMO_SUBNET_NAME }} | wc -l
   register: demo_subnet_exists
 
-- name: create demo net
-  shell: source {{ demo_rc }} ; neutron subnet-create {{ DEMO_NET_NAME }} --name {{ DEMO_SUBNET_NAME }} --gateway {{ DEMO_GATEWAY }} {{ DEMO_CIDR }}
+- name: create demo subnet
+  shell: source {{ admin_rc }} ; neutron subnet-create {{ DEMO_NET_NAME }} --name {{ DEMO_SUBNET_NAME }} --gateway {{ DEMO_GATEWAY }} {{ DEMO_CIDR }}
   when: demo_subnet_exists.stdout == "0"
 
 - name: get demo router
-  shell: source {{ demo_rc }} ; neutron router-list | grep {{ DEMO_ROUTER }} | wc -l
+  shell: source {{ admin_rc }} ; neutron router-list | grep {{ DEMO_ROUTER }} | wc -l
   register: demo_router_exists
 
 - name: create demo router
-  shell: source {{ demo_rc }} ; neutron router-create {{ DEMO_ROUTER }}
+  shell: source {{ admin_rc }} ; neutron router-create {{ DEMO_ROUTER }}
   when: demo_router_exists.stdout == "0"
 
 - name: neutron add router interface
-  shell: source {{ demo_rc }} ; neutron router-interface-add {{ DEMO_ROUTER }} {{ DEMO_SUBNET_NAME }}
+  shell: source {{ admin_rc }} ; neutron router-interface-add {{ DEMO_ROUTER }} {{ DEMO_SUBNET_NAME }}
   ignore_errors: true
 
 - name: neutron set gateway for demo router
-  shell: source {{ demo_rc }} ; neutron router-gateway-set {{ DEMO_ROUTER }} {{ EXT_NET_NAME }}
+  shell: source {{ admin_rc }} ; neutron router-gateway-set {{ DEMO_ROUTER }} {{ EXT_NET_NAME }}

@@ -1,0 +1,6 @@
+---
+- hosts: queue
+  user: ubuntu
+  roles:
+    - rabbitmq
+    

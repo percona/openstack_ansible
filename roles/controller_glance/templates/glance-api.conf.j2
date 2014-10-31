@@ -236,7 +236,7 @@ registry_client_protocol = http
 # Driver or drivers to handle sending notifications
 notification_driver = messaging
 rpc_backend = rabbit
-rabbit_host = {{ ansible_hostname }}
+rabbit_host = {{ rabbit_host }}
 rabbit_password = {{ RABBIT_PASS }}
 
 # Default publisher_id for outgoing notifications.
@@ -244,7 +244,7 @@ rabbit_password = {{ RABBIT_PASS }}
 
 # Configuration options if sending notifications via rabbitmq (these are
 # the defaults)
-rabbit_host = {{ ansible_eth0.ipv4.address }}
+rabbit_host = {{ rabbit_host }}
 rabbit_port = 5672
 rabbit_use_ssl = false
 rabbit_userid = guest

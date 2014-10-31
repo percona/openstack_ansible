@@ -11,7 +11,7 @@ allow_overlapping_ips = True
 auth_strategy = keystone
 
 rpc_backend = neutron.openstack.common.rpc.impl_kombu
-rabbit_host = controller
+rabbit_host = {{ rabbit_host }}
 rabbit_password = {{ RABBIT_PASS }}
 
 notify_nova_on_port_status_changes = True

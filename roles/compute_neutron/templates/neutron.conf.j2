@@ -6,7 +6,7 @@ notification_driver = neutron.openstack.common.notifier.rpc_notifier
 
 auth_strategy = keystone
 rpc_backend = neutron.openstack.common.rpc.impl_kombu
-rabbit_host = controller
+rabbit_host = {{ rabbit_host }}
 rabbit_password = {{ RABBIT_PASS }}
 core_plugin = ml2
 service_plugins = router

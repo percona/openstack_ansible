@@ -17,7 +17,7 @@ enabled_apis=ec2,osapi_compute,metadata
 auth_strategy = keystone
 
 rpc_backend = rabbit
-rabbit_host = controller
+rabbit_host = {{ rabbit_host }}
 rabbit_password = {{ RABBIT_PASS }}
 
 my_ip = {{ ansible_eth0.ipv4.address }}

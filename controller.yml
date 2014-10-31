@@ -2,7 +2,6 @@
 - hosts: controller
   user: ubuntu
   roles:
-    - rabbitmq
     - db_haproxy
     - controller_keystone
     - controller_glance
