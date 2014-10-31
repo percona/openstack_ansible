@@ -19,7 +19,7 @@
   register: demo_tenant_exists
 
 - name: create demo net
-shell: source {{ admin_rc }} ; neutron net-create {{ DEMO_NET_NAME }} --shared
+  shell: source {{ admin_rc }} ; neutron net-create {{ DEMO_NET_NAME }} --shared
   when: demo_tenant_exists.stdout == "0"
 
 - name: get demo subnet
