@@ -106,10 +106,10 @@
     instance_type: "{{ aws_instanceType }}"
     image: "{{ aws_image }}"
     instance_tags:
-      role: openstack-controller
+      role: openstack-controller1
     exact_count: 1
     count_tag:
-      role: openstack-controller
+      role: openstack-controller1
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
     private_ip: 10.10.10.104
@@ -127,10 +127,10 @@
     instance_type: "{{ aws_instanceType }}"
     image: "{{ aws_image }}"
     instance_tags:
-      role: openstack-controller
+      role: openstack-controller2
     exact_count: 1
     count_tag:
-      role: openstack-controller
+      role: openstack-controller2
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
     private_ip: 10.10.10.105
@@ -148,10 +148,10 @@
     instance_type: "{{ aws_instanceType }}"
     image: "{{ aws_image }}"
     instance_tags:
-      role: openstack-controller
+      role: openstack-controller3
     exact_count: 1
     count_tag:
-      role: openstack-controller
+      role: openstack-controller3
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
     private_ip: 10.10.10.106
