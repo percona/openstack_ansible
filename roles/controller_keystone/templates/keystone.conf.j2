@@ -1292,7 +1292,7 @@ connection = mysql://keystone:{{ KEYSTONE_DBPASS }}@{{ database_host }}/keystone
 # operations. Core providers are
 # "keystone.token.providers.[pki|uuid].Provider". (string
 # value)
-#provider=<None>
+provider=keystone.token.providers.uuid.Provider
 
 # Keystone Token persistence backend driver. (string value)
 #driver=keystone.token.backends.sql.Token
