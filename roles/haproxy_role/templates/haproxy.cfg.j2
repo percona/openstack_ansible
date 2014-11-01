@@ -68,7 +68,7 @@ backend {{ name }}-back
     mode http
     balance leastconn
 {% for controller_ip in haproxy['controller_ips'] %}
-    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }}
+    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }} check
 {% endfor %}
 
 {% endfor %}
