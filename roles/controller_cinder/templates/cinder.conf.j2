@@ -19,6 +19,8 @@ rabbit_password = {{ RABBIT_PASS }}
 control_exchange = cinder
 notification_driver = cinder.openstack.common.notifier.rpc_notifier
 
+osapi_volume_listen_port = 18776
+
 [database]
 connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_host }}/cinder
 
