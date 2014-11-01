@@ -160,6 +160,48 @@
     - instance_name: 'controller3'
   register: controller3
 
+- name: Provision EC2 instance - controller4 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-controller4
+    exact_count: 1
+    count_tag:
+      role: openstack-controller4
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.107
+    wait: yes
+  with_items:
+    - instance_name: 'controller4'
+  register: controller4
+
+- name: Provision EC2 instance - controller5 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: "{{ aws_instanceType }}"
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-controller5
+    exact_count: 1
+    count_tag:
+      role: openstack-controller5
+    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
+    assign_public_ip: True
+    private_ip: 10.10.10.108
+    wait: yes
+  with_items:
+    - instance_name: 'controller5'
+  register: controller5
+
 - name: Provision EC2 instance - network 
   local_action:
     module: ec2
@@ -175,32 +217,11 @@
       role: openstack-network
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.107
+    private_ip: 10.10.10.109
     wait: yes
   with_items:
     - instance_name: 'network'
   register: network
-
-- name: Provision EC2 instance - queue 
-  local_action:
-    module: ec2
-    region: "{{ aws_region }}"
-    keypair: "{{ aws_keypair }}"
-    group: "loadtest"
-    instance_type: "{{ aws_instanceType }}"
-    image: "{{ aws_image }}"
-    instance_tags:
-      role: openstack-queue
-    exact_count: 1
-    count_tag:
-      role: openstack-queue
-    vpc_subnet_id: "{{ vpc.subnets[0].id }}"
-    assign_public_ip: True
-    private_ip: 10.10.10.108
-    wait: yes
-  with_items:
-    - instance_name: 'queue'
-  register: queue
 
 - name: Provision EC2 instance - compute1 
   local_action:
@@ -217,7 +238,7 @@
       role: openstack-compute1
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.110
+    private_ip: 10.10.10.120
     wait: yes
   with_items:
     - instance_name: 'compute1'
@@ -238,7 +259,7 @@
       role: openstack-compute2
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.111
+    private_ip: 10.10.10.121
     wait: yes
   with_items:
     - instance_name: 'compute2'
@@ -259,7 +280,7 @@
       role: openstack-compute3
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.112
+    private_ip: 10.10.10.122
     wait: yes
   with_items:
     - instance_name: 'compute3'
@@ -280,7 +301,7 @@
       role: openstack-compute4
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.113
+    private_ip: 10.10.10.123
     wait: yes
   with_items:
     - instance_name: 'compute4'
@@ -301,7 +322,7 @@
       role: openstack-compute5
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.114
+    private_ip: 10.10.10.124
     wait: yes
   with_items:
     - instance_name: 'compute5'
@@ -322,7 +343,7 @@
       role: openstack-compute6
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.115
+    private_ip: 10.10.10.125
     wait: yes
   with_items:
     - instance_name: 'compute6'
@@ -343,7 +364,7 @@
       role: openstack-compute7
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.116
+    private_ip: 10.10.10.126
     wait: yes
   with_items:
     - instance_name: 'compute7'
@@ -364,7 +385,7 @@
       role: openstack-compute8
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.117
+    private_ip: 10.10.10.127
     wait: yes
   with_items:
     - instance_name: 'compute8'
@@ -385,7 +406,7 @@
       role: openstack-compute9
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.118
+    private_ip: 10.10.10.128
     wait: yes
   with_items:
     - instance_name: 'compute9'
@@ -406,7 +427,7 @@
       role: openstack-compute10
     vpc_subnet_id: "{{ vpc.subnets[0].id }}"
     assign_public_ip: True
-    private_ip: 10.10.10.119
+    private_ip: 10.10.10.129
     wait: yes
   with_items:
     - instance_name: 'compute10'

@@ -3,4 +3,5 @@
   user: ubuntu
   roles:
     - haproxy_role
+    - rabbitmq
     - network_neutron

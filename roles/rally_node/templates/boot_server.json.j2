@@ -15,12 +15,12 @@
             "runner": {
                 "type": "constant",
                 "times": 10000,
-                "concurrency": 64
+                "concurrency": 256
             },
             "context": {
                 "users": {
-                    "tenants": 3,
-                    "users_per_tenant": 2
+                    "tenants": 50,
+                    "users_per_tenant": 10
                 },
                 "quotas": {
                   "nova": {

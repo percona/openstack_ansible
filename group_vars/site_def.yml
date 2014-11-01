@@ -19,7 +19,7 @@ DEMO_CIDR: 172.18.0.0/16
 DEMO_ROUTER: demo-router
 
 database_host: 127.0.0.1:3306
-rabbit_host: queue
+rabbit_host: network
 api_proxy_host: 127.0.0.1
 keystone_user_service_port: 5000
 keystone_admin_service_port: 35357

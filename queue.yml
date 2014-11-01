@@ -1,6 +1,5 @@
 ---
-- hosts: queue
+- hosts: network
   user: ubuntu
   roles:
     - rabbitmq
-    

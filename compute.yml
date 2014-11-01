@@ -2,6 +2,7 @@
 - hosts: compute
   user: ubuntu
   roles:
+    - haproxy_role
     - compute_init
     - compute_nova
     - compute_neutron

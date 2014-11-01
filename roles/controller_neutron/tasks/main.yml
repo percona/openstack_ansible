@@ -43,5 +43,8 @@
 - shell: source {{ admin_rc }} ; neutron network-list | grep service | awk '{print $2}'
   register: networks_list
 
+- name: sleep a bit
+  shell: sleep 10
+
 - include: initial_networks.yml
   when: networks_list.stdout.find("{{ EXT_NET_NAME }}") == -1
