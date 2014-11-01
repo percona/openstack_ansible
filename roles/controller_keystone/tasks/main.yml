@@ -10,6 +10,24 @@
     - keystone
     - python-keystone
 
+- name: ensure /etc/keystone/ssl
+  file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0755
+
+- name: ensure /etc/keystone/ssl/certs
+  file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0755
+
+- name: install signing cert
+  copy: src=etc/keystone/ssl/certs/signing_cert.pem dest=/etc/keystone/ssl/certs/signing_cert.pem owner=keystone group=keystone mode=0664
+
+- name: ensure /etc/keystone/ssl/private
+  file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0750
+
+- name: install signing key
+  copy: src=etc/keystone/ssl/private/signing_key.pem dest=/etc/keystone/ssl/certs/signing_key.pem owner=keystone group=keystone mode=0640
+
+- name: install cakey
+  copy: src=etc/keystone/ssl/private/cakey.pem dest=/etc/keystone/ssl/certs/cakey.pem owner=keystone group=keystone mode=0640
+
 - name: enable mod_wsgi
   apache2_module: state=present name=wsgi
 
