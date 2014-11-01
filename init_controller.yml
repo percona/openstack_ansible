@@ -1,0 +1,12 @@
+---
+- hosts: init_controller
+  user: ubuntu
+  roles:
+    - haproxy_role
+    - controller_keystone
+    - controller_glance
+    - controller_cinder
+    - controller_nova
+    - controller_neutron
+    - controller_heat
+    - controller_dashboard

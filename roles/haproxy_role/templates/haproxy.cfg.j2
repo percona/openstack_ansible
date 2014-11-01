@@ -57,7 +57,7 @@ backend pxc-onenode-back
  
 {% if haproxy['ha_controller'] %}
 
-{% for (name, port) in [ ("keystone", "5000"), ("keystoneadm", "35357"), ("nova-api", "8774"), ("neutron", "9696") ] %}
+{% for (name, port, serviceport) in [ ("keystone", "5000", "15000"), ("keystoneadm", "35357", "45357"), ("nova-api", "8774", "18774"), ("neutron", "9696", "19696") ] %}
 frontend {{ name }}-front
     bind *:{{ port }}
     mode http
@@ -68,7 +68,7 @@ backend {{ name }}-back
     mode http
     balance leastconn
 {% for controller_ip in haproxy['controller_ips'] %}
-    server controller{{ loop.index }} {{ controller_ip }}:{{ port }} check
+    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }}
 {% endfor %}
 
 {% endfor %}

@@ -5,8 +5,10 @@
 {{ database2.results[0].tagged_instances[0].public_ip }}
 {{ database3.results[0].tagged_instances[0].public_ip }}
 
-[controller]
+[init_controller]
 {{ controller1.results[0].tagged_instances[0].public_ip }} db_init=true
+
+[controller]
 {{ controller2.results[0].tagged_instances[0].public_ip }}
 {{ controller3.results[0].tagged_instances[0].public_ip }}
 

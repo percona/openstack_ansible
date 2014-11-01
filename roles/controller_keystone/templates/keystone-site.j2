@@ -1,5 +1,5 @@
-Listen *:5000
-<VirtualHost *:5000>
+Listen *:15000
+<VirtualHost *:15000>
 LogLevel warn
 ErrorLog ${APACHE_LOG_DIR}/keystone-5000-error.log
 CustomLog ${APACHE_LOG_DIR}/keystone-5000-access.log combined
@@ -10,8 +10,8 @@ WSGIProcessGroup keystone
 
 </VirtualHost>
 
-Listen *:35357
-<VirtualHost *:35357>
+Listen *:45357
+<VirtualHost *:45357>
 LogLevel warn
 ErrorLog ${APACHE_LOG_DIR}/keystone-35357-error.log
 CustomLog ${APACHE_LOG_DIR}/keystone-35357-access.log combined

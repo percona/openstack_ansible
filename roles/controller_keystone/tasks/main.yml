@@ -42,7 +42,7 @@
 
 - name: keystone db_sync
   shell: su -s /bin/sh -c "keystone-manage db_sync" keystone
-  when: db_init
+  when: db_init is defined
 
 - name: install keystone apache site
   template: src=keystone-site.j2 dest=/etc/apache2/sites-available/keystone.conf owner=root group=root mode=0644
@@ -80,7 +80,7 @@
 # This creates the Keystone admin tenant, role and user, and all the service endpoints
 - name: initialize keystone
   shell: /var/tmp/keystone_init.sh
-  when: db_init
+  when: db_init is defined
 
 - name: creates the openstack_admin.rc
   template: src=openstack_admin.rc.j2 dest=/root/.openstack_admin.rc owner=root group=root mode=0600

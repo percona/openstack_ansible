@@ -20,7 +20,7 @@ DEMO_ROUTER: demo-router
 
 database_host: 127.0.0.1:3306
 rabbit_host: queue
-api_haproxy_host: 127.0.0.1
+api_proxy_host: 127.0.0.1
 keystone_user_service_port: 5000
 keystone_admin_service_port: 35357
 neutron_service_port: 9696
@@ -33,7 +33,6 @@ openstack_release: icehouse
 
 admin_rc: /root/.openstack_admin.rc
 demo_rc: /root/.openstack_demo.rc
-db_init: false
 
 keystone_use_apache: true
 

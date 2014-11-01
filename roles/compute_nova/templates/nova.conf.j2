@@ -28,7 +28,7 @@ novncproxy_base_url = http://{{ ansible_eth0.ipv4.address }}:6080/vnc_auto.html
 
 compute_driver = nova.virt.fake.FakeDriver
 
-glance_host = {{ api_proxy_host }}
+glance_host = 10.10.10.104
 
 network_api_class = nova.network.neutronv2.api.API
 neutron_url = http://{{ api_proxy_host }}:{{ neutron_service_port }}
