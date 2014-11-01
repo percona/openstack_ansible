@@ -23,10 +23,10 @@
   file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0750
 
 - name: install signing key
-  copy: src=etc/keystone/ssl/private/signing_key.pem dest=/etc/keystone/ssl/certs/signing_key.pem owner=keystone group=keystone mode=0640
+  copy: src=etc/keystone/ssl/private/signing_key.pem dest=/etc/keystone/ssl/private/signing_key.pem owner=keystone group=keystone mode=0640
 
 - name: install cakey
-  copy: src=etc/keystone/ssl/private/cakey.pem dest=/etc/keystone/ssl/certs/cakey.pem owner=keystone group=keystone mode=0640
+  copy: src=etc/keystone/ssl/private/cakey.pem dest=/etc/keystone/ssl/private/cakey.pem owner=keystone group=keystone mode=0640
 
 - name: enable mod_wsgi
   apache2_module: state=present name=wsgi
