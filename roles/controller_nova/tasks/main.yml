@@ -24,7 +24,7 @@
 
 - name: nova db sync
   shell: su -s /bin/sh -c "nova-manage db sync" nova
-  when: db_init
+  when: db_init is defined
 
 - name: create nova service user
   keystone_user: tenant=service user=nova email="nova@localhost" password={{ NOVA_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}

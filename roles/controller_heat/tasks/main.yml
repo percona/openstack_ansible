@@ -14,7 +14,7 @@
 
 - name: heat db sync
   shell: su -s /bin/sh -c "heat-manage db_sync" heat
-  when: db_init
+  when: db_init is defined
 
 - name: create heat service user
   keystone_user: tenant=service user=heat email="heat@localhost" password={{ HEAT_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}

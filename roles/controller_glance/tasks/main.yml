@@ -38,7 +38,7 @@
 
 - name: glance db_sync
   shell: su -s /bin/sh -c "glance-manage db_sync" glance
-  when: db_init
+  when: db_init is defined
 
 - name: create glance service user
   keystone_user: tenant=service user=glance email="glance@localhost" password={{ GLANCE_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
