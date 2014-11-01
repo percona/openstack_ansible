@@ -15,6 +15,7 @@
 
 - include: pxc_bootstrap.yml
 - include: pxc_node.yml
+- include: queue.yml
 - include: init_controller.yml
 - include: controller.yml
 - include: network.yml
