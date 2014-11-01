@@ -1,74 +1,76 @@
 global
-log 127.0.0.1 local0
-log 127.0.0.1 local1 notice
-maxconn 4096
-daemon
+    log 127.0.0.1 local0
+    log 127.0.0.1 local1 notice
+    maxconn 4096
+    daemon
+
 defaults
-log global
-mode http
-option tcplog
-option dontlognull
-retries 3
-option redispatch
-maxconn 2000
-contimeout 5000
-clitimeout 50000
-srvtimeout 50000
+    log global
+    mode tcp
+    option tcplog
+    option dontlognull
+    retries 3
+    option redispatch
+    contimeout 5000
+    clitimeout 50000
+    srvtimeout 50000
  
 frontend stats-front
-bind *:8080
-mode http
-default_backend stats-back
+    bind *:8080
+    mode http
+    default_backend stats-back
  
 backend stats-back
-mode http
-balance roundrobin
-stats uri /haproxy/stats
-stats auth pxcstats:secret
+    mode http
+    balance roundrobin
+    stats uri /haproxy/stats
+    stats auth pxcstats:secret
  
-<% if haproxy['ha_pxc'] %>
+{% if haproxy['ha_pxc'] %}
 frontend pxc-front
-bind *:3307
-mode tcp
-default_backend pxc-back
+    bind *:3307
+    mode tcp
+    default_backend pxc-back
  
 frontend pxc-onenode-front
-bind *:3306
-mode tcp
-default_backend pxc-onenode-back
+    bind *:3306
+    mode tcp
+    default_backend pxc-onenode-back
  
 backend pxc-back
-mode tcp
-balance leastconn
-option httpchk
-<% for db_ip in haproxy['pxc_ips'] %>
-server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fall 3
-<% endfor %>
+    mode tcp
+    balance leastconn
+    option httpchk
+{% for db_ip in haproxy['pxc_ips'] %}
+    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fall 3
+{% endfor %}
  
 backend pxc-onenode-back
-mode tcp
-balance leastconn
-option httpchk
-<% for db_ip in haproxy['pxc_ips'] %>
-server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fall 3 <% if not loop.first %>backup<% endif %>
-<% endfor %>
-<% endif %>
- 
-<% if haproxy['ha_controller'] %>
+    mode tcp
+    balance leastconn
+    option httpchk
+{% for db_ip in haproxy['pxc_ips'] %}
+    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fall 3{% if not loop.first %} backup{% endif %}
 
-<% for (name, port) in [ ("keystone", "5000"), ("keystoneadm", "35357"), ("nova-api", "8774"), ("neutron", "9696") ] %>
+{% endfor %}
+{% endif %}
+ 
+{% if haproxy['ha_controller'] %}
+
+{% for (name, port) in [ ("keystone", "5000"), ("keystoneadm", "35357"), ("nova-api", "8774"), ("neutron", "9696") ] %}
 frontend {{ name }}-front
-bind *:{{ port }}
-mode tcp
-default_backend {{ name }}-back
+    bind *:{{ port }}
+    mode http
+    option http-server-close
+    default_backend {{ name }}-back
  
 backend {{ name }}-back
-mode tcp
-balance leastconn
-<% for controller_ip in haproxy['controller_ips'] %>
-server controller{{ loop.index }} {{ controller_ip }}:{{ port }} 
-<% endfor %>
+    mode http
+    balance leastconn
+{% for controller_ip in haproxy['controller_ips'] %}
+    server controller{{ loop.index }} {{ controller_ip }}:{{ port }} check
+{% endfor %}
 
-<% endfor %>
+{% endfor %}
 
-<% endif %>
+{% endif %}
