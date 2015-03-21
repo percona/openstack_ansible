@@ -8,12 +8,13 @@ nice            = 0
 
 [mysqld]
 server_id = 1
-innodb_buffer_pool_size = 30G
-innodb_log_file_size = 1G
+innodb_buffer_pool_size = 1G
+innodb_log_file_size = 128M
 innodb_flush_log_at_trx_commit = 0
 innodb_autoinc_lock_mode = 2
 datadir = /var/lib/mysql
 log_bin = /var/lib/mysql/mysql-bin
+innodb_io_capacity = 5000
 binlog_format = ROW
 slow_query_log = ON
 slow_query_log_file = /var/lib/mysql/slow.log
@@ -28,17 +29,23 @@ init-connect = 'SET NAMES utf8'
 character-set-server = utf8 
 slow_query_log_timestamp_always = 1 
 slow_query_log_timestamp_precision = microsecond
-max_connections = 4000
+max_connections = 6000
 max_connect_errors = 999999999999
 
 wsrep_provider = /usr/lib/galera3/libgalera_smm.so
 wsrep_cluster_address = gcomm://database1,database2,database3
 wsrep_slave_threads = 2
 wsrep_cluster_name = stackpxc
-wsrep_sst_method = xtrabackup
+wsrep_sst_method = xtrabackup-v2
 wsrep_node_name = {{ ansible_fqdn }}
 wsrep_sst_auth = sst:sst
 
 [xtrabackup]
 user = sst
 password = sst
+
+[sst]
+streamfmt=xbstream
+compressed
+parallel=4
+compress-threads=4

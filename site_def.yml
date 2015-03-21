@@ -41,9 +41,3 @@ keystone_use_apache: true
 haproxy:
   ha_pxc: true
   ha_controller: true
-  pxc_ips:
-    - 10.10.10.11
-    - 10.10.10.12
-    - 10.10.10.13
-  controller_ips:
-    - 10.10.10.14

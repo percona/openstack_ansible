@@ -4,8 +4,4 @@
   gather_facts: False
   tags: provisioning
   roles:
-    - role: aws
-
-- hosts: launched
-  remote_user: admin
-  sudo: True
+    - role: aws_destroy

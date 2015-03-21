@@ -1,4 +1,6 @@
 group_vars/openstack_password.yml
 group_vars/additional_ssh_keys.yml
-roles/aws/vars/main.yml
 hosts
+roles/aws_create
+roles/aws_destroy
+

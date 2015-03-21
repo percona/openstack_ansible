@@ -1,0 +1,21 @@
+- name: Provision EC2 instance - database{{ node_num_type }} 
+  local_action:
+    module: ec2
+    region: "{{ aws_region }}"
+    keypair: "{{ aws_keypair }}"
+    group: "loadtest"
+    instance_type: {{ instance_type }}
+    image: "{{ aws_image }}"
+    instance_tags:
+      role: openstack-database{{ node_num_type }}
+    exact_count: {{ exact_count }}
+    count_tag:
+      role: openstack-database{{ node_num_type }}
+    {% raw %}vpc_subnet_id: "{{ vpc.subnets[0].id }}"{% endraw %}
+
+    assign_public_ip: True
+    private_ip: 10.10.10.{{ nodenum + 10 }}
+    wait: yes
+  with_items:
+    - instance_name: 'database{{ node_num_type }}'
+  register: database{{ node_num_type }}

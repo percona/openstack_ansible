@@ -8,10 +8,6 @@
   tasks:
     - name: gtfo
       file: path=/etc/hosts state=touch
-    # - name: apt-get update
-    #   apt: update_cache=yes
-    # - name: apt-get upgrade
-    #   apt: upgrade=yes state=latest
 
 - include: pxc_bootstrap.yml
 - include: pxc_node.yml

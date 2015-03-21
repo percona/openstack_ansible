@@ -1,0 +1,24 @@
+aws_region: eu-west-1
+aws_keypair: pboros
+aws_image: ami-f6b11181
+
+database:
+  type: pxc
+  instance_type: m3.medium
+  num_databases: 3
+
+controller:
+  instance_type: m3.medium
+  num_controllers: 1
+
+network:
+  instance_type: m3.medium
+  num_networks : 1
+
+compute:
+  instance_type: m3.medium
+  num_computes: 2
+
+benchmark:
+  instance_type: m3.medium
+  num_benchmarks: 1

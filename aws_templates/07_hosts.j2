@@ -1,0 +1,14 @@
+- name: Add host addresses to inventory (hosts)
+  template:
+    src: hosts.j2
+    {% raw %}dest: "{{ inventory_dir }}/hosts"{% endraw %}
+
+- name: Add private host addresses to machine hosts file
+  template:
+    src: machine_hosts.j2
+    {% raw %}dest: "{{ inventory_dir }}/roles/common/templates/hosts.j2"{% endraw %}
+
+- name: Render site_def.yml group variable
+  template:
+    src: site_def.yml.j2
+    {% raw %}dest: "{{ inventory_dir }}/group_vars/site_def.yml"{% endraw %}

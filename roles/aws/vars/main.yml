@@ -1,6 +1,0 @@
-aws_region: eu-west-1
-aws_keypair: pboros
-aws_instanceType: c3.8xlarge
-aws_compute_instanceType: c3.large
-aws_image: ami-f6b11181
-# us-west-2 ami-37501207

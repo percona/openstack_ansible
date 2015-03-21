@@ -1,0 +1,19 @@
+- name: Provision VPC
+  local_action:
+    module: ec2_vpc
+    cidr_block: 10.10.0.0/16
+    resource_tags: { "Environment":"Load Test" }
+    internet_gateway: True
+    subnets:
+      - cidr: 10.10.10.0/24
+        az: "{{ aws_region }}c"
+    route_tables:
+      - subnets:
+          - 10.10.10.0/24
+        routes:
+          - dest: 0.0.0.0/0
+            gw: igw
+    region: "{{ aws_region }}" 
+    wait: yes
+    state: {{ state }}
+  register: vpc
