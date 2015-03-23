@@ -42,18 +42,19 @@ def render_infra(create_or_destroy, cloud_def, aws_yaml, inventory_hosts, machin
       if create_or_destroy == "create":
         site_def.write("  pxc_ips:\n")
       for database_node in range(1, cloud_def['database']['num_databases'] + 1):
+        node_num += 1        
+        node_num_type += 1
+
         if create_or_destroy == "create":
           machine_hosts.write("{{ ")
-          machine_hosts.write("database{0}.results[0].tagged_instances[0].private_ip".format(node_num_type + 1))
+          machine_hosts.write("database{0}.results[0].tagged_instances[0].private_ip".format(node_num_type))
           machine_hosts.write(" }} {{")
-          machine_hosts.write("database{0}.results[0].item.instance_name".format(node_num_type + 1))
+          machine_hosts.write("database{0}.results[0].item.instance_name".format(node_num_type))
           machine_hosts.write(" }}\n")
           site_def.write("    - {{ ")
-          site_def.write("database{0}.results[0].tagged_instances[0].private_ip".format(node_num_type + 1))
+          site_def.write("database{0}.results[0].tagged_instances[0].private_ip".format(node_num_type))
           site_def.write(" }}\n")
 
-        node_num += 1
-        node_num_type += 1
         render_block("database", current_template, cloud_def, node_num, node_num_type, aws_yaml, state)
         if node_num_type == 1:
           inventory_hosts.write("[pxc_bootstrap]\n")
@@ -75,18 +76,18 @@ def render_infra(create_or_destroy, cloud_def, aws_yaml, inventory_hosts, machin
       if create_or_destroy == "create":
         site_def.write("  controller_ips:\n")
       for controller_node in range(1, cloud_def['controller']['num_controllers'] + 1):
-        if create_or_destroy == "create":
-          machine_hosts.write("{{ ")
-          machine_hosts.write("controller{0}.results[0].tagged_instances[0].private_ip".format(node_num_type + 1))
-          machine_hosts.write(" }} {{")
-          machine_hosts.write("controller{0}.results[0].item.instance_name".format(node_num_type + 1))
-          machine_hosts.write(" }}\n")
-          site_def.write("    - {{ ")
-          site_def.write("controller{0}.results[0].tagged_instances[0].private_ip".format(node_num_type + 1))
-          site_def.write(" }}\n")
-
         node_num += 1
         node_num_type += 1
+        if create_or_destroy == "create":
+          machine_hosts.write("{{ ")
+          machine_hosts.write("controller{0}.results[0].tagged_instances[0].private_ip".format(node_num_type))
+          machine_hosts.write(" }} {{")
+          machine_hosts.write("controller{0}.results[0].item.instance_name".format(node_num_type))
+          machine_hosts.write(" }}\n")
+          site_def.write("    - {{ ")
+          site_def.write("controller{0}.results[0].tagged_instances[0].private_ip".format(node_num_type))
+          site_def.write(" }}\n")
+
         render_block("controller", current_template, cloud_def, node_num, node_num_type, aws_yaml, state)
         if node_num_type == 1:
           inventory_hosts.write("[init_controller]\n")
@@ -113,15 +114,15 @@ def render_infra(create_or_destroy, cloud_def, aws_yaml, inventory_hosts, machin
     elif aws_template =="05_node_compute.j2":
       node_num_type = 0
       for compute_node in range(1, cloud_def['compute']['num_computes'] + 1):
-        if create_or_destroy == "create":
-          machine_hosts.write("{{ ")
-          machine_hosts.write("compute{0}.results[0].tagged_instances[0].private_ip".format(node_num_type + 1))
-          machine_hosts.write(" }} {{")
-          machine_hosts.write("compute{0}.results[0].item.instance_name".format(node_num_type + 1))
-          machine_hosts.write(" }}\n")
-
         node_num += 1
         node_num_type += 1
+        if create_or_destroy == "create":
+          machine_hosts.write("{{ ")
+          machine_hosts.write("compute{0}.results[0].tagged_instances[0].private_ip".format(node_num_type))
+          machine_hosts.write(" }} {{")
+          machine_hosts.write("compute{0}.results[0].item.instance_name".format(node_num_type))
+          machine_hosts.write(" }}\n")
+
         render_block("compute", current_template, cloud_def, node_num, node_num_type, aws_yaml, state)
         if node_num_type == 1:
           inventory_hosts.write("[compute]\n")
@@ -147,15 +148,25 @@ def render_infra(create_or_destroy, cloud_def, aws_yaml, inventory_hosts, machin
     else:
       sys.exit("Unknown template in templates dir")
 
+aws_create_role_dir = "{0}/roles/aws_create".format(os.getcwd())
+aws_destroy_role_dir = "{0}/roles/aws_destroy".format(os.getcwd())
+for ansible_subdir in ['tasks','templates','vars']:
+  create_subdir = "{0}/{1}".format(aws_create_role_dir, ansible_subdir)
+  destroy_subdir = "{0}/{1}".format(aws_destroy_role_dir, ansible_subdir)
+  if not os.path.isdir(create_subdir):
+    os.makedirs(create_subdir, 0775)
+  if not os.path.isdir(destroy_subdir):
+    os.makedirs(destroy_subdir, 0755)
+
 cloud_f = open("cloud_def.yml", "r")
-aws_yaml_create = open("{0}/roles/aws_create/tasks/main.yml".format(os.getcwd()), "w")
-aws_yaml_destroy = open("{0}/roles/aws_destroy/tasks/main.yml".format(os.getcwd()), "w")
-inventory_hosts_create = open("{0}/roles/aws_create/templates/inventory_hosts.j2".format(os.getcwd()), "w")
-inventory_hosts_destroy = open("{0}/roles/aws_destroy/templates/inventory_hosts.j2".format(os.getcwd()), "w")
-machine_hosts = open("{0}/roles/aws_create/templates/machine_hosts.j2".format(os.getcwd()), "w")
+aws_yaml_create = open("{0}/tasks/main.yml".format(aws_create_role_dir), "w")
+aws_yaml_destroy = open("{0}/tasks/main.yml".format(aws_destroy_role_dir), "w")
+inventory_hosts_create = open("{0}/templates/inventory_hosts.j2".format(aws_create_role_dir), "w")
+inventory_hosts_destroy = open("{0}/templates/inventory_hosts.j2".format(aws_destroy_role_dir), "w")
+machine_hosts = open("{0}/templates/machine_hosts.j2".format(aws_create_role_dir), "w")
 machine_hosts.write("127.0.0.1 localhost\n")
 shutil.copyfile("{0}/site_def.yml".format(os.getcwd()), "{0}/roles/aws_create/templates/site_def.yml.j2".format(os.getcwd()))
-site_def = open("{0}/roles/aws_create/templates/site_def.yml.j2".format(os.getcwd()),"a")
+site_def = open("{0}/templates/site_def.yml.j2".format(aws_create_role_dir),"a")
 
 template_dir = "{0}/aws_templates".format(os.getcwd())
 cloud_def = yaml.load(cloud_f)

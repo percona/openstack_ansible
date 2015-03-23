@@ -3,6 +3,7 @@ global
     log 127.0.0.1 local1 notice
     maxconn 65000
     daemon
+    stats socket /tmp/haproxy.sock
 
 defaults
     log global
@@ -11,21 +12,10 @@ defaults
     option dontlognull
     retries 3
     option redispatch
-    contimeout 5000
-    clitimeout 50000
-    srvtimeout 50000
- 
-frontend stats-front
-    bind *:8080
-    mode http
-    default_backend stats-back
- 
-backend stats-back
-    mode http
-    balance roundrobin
-    stats uri /haproxy/stats
-    stats auth pxcstats:secret
- 
+    timeout client 28801000
+    timeout connect 28810000
+    timeout server 28820000
+  
 {% if haproxy['ha_pxc'] %}
 frontend pxc-front
     bind *:3307
@@ -41,16 +31,18 @@ backend pxc-back
     mode tcp
     balance leastconn
     option httpchk
+    default-server on-marked-down shutdown-sessions on-marked-up shutdown-backup-sessions
 {% for db_ip in haproxy['pxc_ips'] %}
-    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fall 3
+    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 1000 rise 2 fall 2
 {% endfor %}
  
 backend pxc-onenode-back
     mode tcp
     balance leastconn
     option httpchk
+    default-server on-marked-down shutdown-sessions on-marked-up shutdown-backup-sessions
 {% for db_ip in haproxy['pxc_ips'] %}
-    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 5000 rise 3 fall 3{% if not loop.first %} backup{% endif %}
+    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 1000 rise 2 fall 2{% if not loop.first %} backup{% endif %}
 
 {% endfor %}
 {% endif %}

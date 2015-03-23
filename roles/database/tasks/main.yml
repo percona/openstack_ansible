@@ -1,5 +1,0 @@
---- 
-
-- include: mysql_single.yml
-- include: databases.yml
-- include: database_users.yml

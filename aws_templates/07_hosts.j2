@@ -1,6 +1,6 @@
 - name: Add host addresses to inventory (hosts)
   template:
-    src: hosts.j2
+    src: inventory_hosts.j2
     {% raw %}dest: "{{ inventory_dir }}/hosts"{% endraw %}
 
 - name: Add private host addresses to machine hosts file

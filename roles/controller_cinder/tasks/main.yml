@@ -6,7 +6,12 @@
     - cinder-scheduler
 
 - name: write the cinder config file
-  template: src=cinder.conf.j2 dest=/etc/cinder/cinder.conf owner=root group=root mode=0644
+  template: 
+    src: cinder.conf.j2 
+    dest: /etc/cinder/cinder.conf 
+    owner: root 
+    group: root 
+    mode: 0644
   notify: restart cinder-all
 
 - name: cinder db sync
@@ -14,10 +19,30 @@
   when: db_init is defined
 
 - name: create cinder service user
-  keystone_user: tenant=service user=cinder email="cinder@localhost" password={{ CINDER_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    user: cinder 
+    email: cinder@localhost 
+    password: "{{ CINDER_PASS }}" 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
 - name: add role to cinder service user
-  keystone_user: tenant=service role=admin user=cinder login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    role: admin 
+    user: cinder 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
-- service: name=cinder-api state=restarted
-- service: name=cinder-scheduler state=restarted
+- service: 
+    name: cinder-api 
+    state: restarted
+
+- service: 
+    name: cinder-scheduler 
+    state: restarted

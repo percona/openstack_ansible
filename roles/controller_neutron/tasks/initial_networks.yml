@@ -2,6 +2,8 @@
   shell: source {{ admin_rc }} ; neutron net-list | grep {{ EXT_NET_NAME }} | wc -l
   register: ext_net_exists
 
+- debug: var=ext_net_exists
+
 - name: create ext net
   shell: source {{ admin_rc }} ; neutron net-create {{ EXT_NET_NAME }} --shared --router:external=True
   when: ext_net_exists.stdout == "0"

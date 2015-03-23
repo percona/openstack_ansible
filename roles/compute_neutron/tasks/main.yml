@@ -1,8 +1,16 @@
-- sysctl: name=net.ipv4.conf.all.rp_filter value=0 state=present
-- sysctl: name=net.ipv4.conf.default.rp_filter value=0 state=present
+- sysctl: 
+    name: net.ipv4.conf.all.rp_filter 
+    value: "0" 
+    state: present
+- sysctl: 
+    name: net.ipv4.conf.default.rp_filter 
+    value: "0" 
+    state: present
 
 - name: neutron compute node packages
-  apt: pkg={{ item }} state=installed
+  apt: 
+    pkg: "{{ item }}" 
+    state: installed
   tags: packages
   with_items:
     - neutron-plugin-ml2 
@@ -11,13 +19,23 @@
     - openvswitch-datapath-dkms
 
 - name: write the neutron config file
-  template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf owner=root group=root mode=0644
+  template: 
+    src: neutron.conf.j2 
+    dest: /etc/neutron/neutron.conf 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart openvswitch-switch
     - restart neutron-plugin-openvswitch-agent
 
 - name: write the ml2 config file
-  template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini owner=root group=root mode=0644
+  template: 
+    src: ml2_conf.ini.j2 
+    dest: /etc/neutron/plugins/ml2/ml2_conf.ini 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart openvswitch-switch
 

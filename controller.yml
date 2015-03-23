@@ -8,5 +8,4 @@
     - controller_cinder
     - controller_nova
     - controller_neutron
-    - controller_heat
     - controller_dashboard

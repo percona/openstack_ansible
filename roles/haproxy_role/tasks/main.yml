@@ -2,8 +2,11 @@
 
 - name: install haproxy package
   apt:
-    pkg: haproxy
+    pkg: "{{ item }}"
     state: installed
+  with_items:
+    - haproxy
+    - socat
 
 - name: render haproxy configuration file
   template:
@@ -26,4 +29,4 @@
 - name: start haproxy
   service:
     name: haproxy
-    state: started
+    state: restarted

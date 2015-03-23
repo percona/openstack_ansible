@@ -1,2 +1,4 @@
 - name: restart neutron-server
-  service: name=neutron-server state=restarted
+  service: 
+    name: neutron-server 
+    state: restarted

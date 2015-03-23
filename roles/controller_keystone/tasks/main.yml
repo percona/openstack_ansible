@@ -1,99 +1,100 @@
 ---
 
 - name: keystone packages
-  apt: pkg={{ item }} state=installed
-  tags: keystone
+  apt: 
+    pkg: "{{ item }}" 
+    state: present
   with_items:
-    - apache2
-    - libapache2-mod-wsgi
-    - python-mysqldb
     - keystone
     - python-keystone
 
 - name: ensure /etc/keystone/ssl
-  file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0755
+  file: 
+    dest: /etc/keystone/ssl 
+    state: directory 
+    owner: keystone 
+    group: keystone 
+    mode: 0755
 
 - name: ensure /etc/keystone/ssl/certs
-  file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0755
+  file: 
+    dest: /etc/keystone/ssl 
+    state: directory 
+    owner: keystone 
+    group: keystone 
+    mode: 0755
 
 - name: install signing cert
-  copy: src=etc/keystone/ssl/certs/signing_cert.pem dest=/etc/keystone/ssl/certs/signing_cert.pem owner=keystone group=keystone mode=0664
+  copy: 
+    src: etc/keystone/ssl/certs/signing_cert.pem 
+    dest: /etc/keystone/ssl/certs/signing_cert.pem 
+    owner: keystone 
+    group: keystone 
+    mode: 0664
 
 - name: ensure /etc/keystone/ssl/private
-  file: dest=/etc/keystone/ssl state=directory owner=keystone group=keystone mode=0750
+  file: 
+    dest: /etc/keystone/ssl 
+    state: directory 
+    owner: keystone 
+    group: keystone 
+    mode: 0750
 
 - name: install signing key
-  copy: src=etc/keystone/ssl/private/signing_key.pem dest=/etc/keystone/ssl/private/signing_key.pem owner=keystone group=keystone mode=0640
+  copy: 
+    src: etc/keystone/ssl/private/signing_key.pem 
+    dest: /etc/keystone/ssl/private/signing_key.pem 
+    owner: keystone 
+    group: keystone 
+    mode: 0640
 
 - name: install cakey
-  copy: src=etc/keystone/ssl/private/cakey.pem dest=/etc/keystone/ssl/private/cakey.pem owner=keystone group=keystone mode=0640
-
-- name: enable mod_wsgi
-  apache2_module: state=present name=wsgi
+  copy: 
+    src: etc/keystone/ssl/private/cakey.pem 
+    dest: /etc/keystone/ssl/private/cakey.pem 
+    owner: keystone 
+    group: keystone 
+    mode: 0640
 
 - name: write the keystone config file
-  template: src=keystone.conf.j2 dest=/etc/keystone/keystone.conf owner=root group=root mode=0644
+  template: 
+    src: keystone.conf.j2 
+    dest: /etc/keystone/keystone.conf 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart keystone
 
-- name: ensure /usr/share/openstack/keystone/httpd directory
-  file: dest=/usr/share/openstack/keystone/httpd state=directory owner=keystone group=nogroup mode=0744
-
-- name: install WSGI application shared file
-  copy: src=keystone.py dest=/usr/share/openstack/keystone/httpd/keystone.py owner=keystone group=nogroup mode=0744
-
-# The Keystone Icehouse packages distribute an httpd/keystone.py
-# file that must be symlinked to a "main" and an "admin" file that
-# is used by the Apache mod_wsgi configuration to load appropriate
-# applications from the /etc/keystone/keystone-paste.ini file.
-- name: ensure /var/www directory
-  file: dest=/var/www state=directory owner=keystone group=nogroup mode=0755
-
-- name: ensure WSGI application main container files written
-  copy: src=keystone.py dest=/var/www/main owner=keystone group=nogroup mode=0744
-  
-- name: ensure WSGI application admin container files written
-  copy: src=keystone.py dest=/var/www/admin owner=keystone group=nogroup mode=0744
-
 - name: remove old sqlite db file
-  file: path=/var/lib/keystone/keystone.db state=absent
+  file: 
+    path: /var/lib/keystone/keystone.db 
+    state: absent
 
 - name: keystone db_sync
   shell: su -s /bin/sh -c "keystone-manage db_sync" keystone
   when: db_init is defined
 
-- name: install keystone apache site
-  template: src=keystone-site.j2 dest=/etc/apache2/sites-available/keystone.conf owner=root group=root mode=0644
-
-- name: enable keystone site in apache
-  shell: a2ensite keystone
-  when: keystone_use_apache
-
-- name: disable keystone site in apache (using keystone standalone worker processes)
-  shell: a2dissite keystone
-  when: not keystone_use_apache
-
 - name: ensure keystone-all service not started
-  service: name=keystone state=stopped
-  when: keystone_use_apache
-
-- name: restart apache
-  service:
-    name: apache2
+  service: 
+    name: keystone 
     state: restarted
-  when: keystone_use_apache
-
-- name: restart keystone
-  service:
-    name: keystone
-    state: restarted
-  when: not keystone_use_apache
   
 - name: cron job to flush the old tokens
-  cron: name="keystone_flush" user=keystone state=present minute=1 job="/usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1"
+  cron: 
+    name: keystone_flush
+    user: keystone 
+    state: present 
+    minute: 1 
+    job: "/usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1"
 
 - name: render keystone init template
-  template: src=keystone_init.sh.j2 dest=/var/tmp/keystone_init.sh owner=root group=root mode=0755
+  template: 
+    src: keystone_init.sh.j2 
+    dest: /var/tmp/keystone_init.sh 
+    owner: root 
+    group: root 
+    mode: 0755
 
 # This creates the Keystone admin tenant, role and user, and all the service endpoints
 - name: initialize keystone
@@ -101,43 +102,57 @@
   when: db_init is defined
 
 - name: creates the openstack_admin.rc
-  template: src=openstack_admin.rc.j2 dest=/root/.openstack_admin.rc owner=root group=root mode=0600
+  template: 
+    src: openstack_admin.rc.j2 
+    dest: /root/.openstack_admin.rc 
+    owner: root 
+    group: root 
+    mode: 0600
 
 - name: creates the openstack_demo.rc
-  template: src=openstack_demo.rc.j2 dest=/root/.openstack_demo.rc owner=root group=root mode=0600
+  template: 
+    src: openstack_demo.rc.j2 
+    dest: /root/.openstack_demo.rc 
+    owner: root 
+    group: root 
+    mode: 0600
 
 - name: create service tenant
-  keystone_user: tenant=service tenant_description="Service tenant" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    tenant_description: "Service tenant" 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
 - name: create demo tenant
-  keystone_user: tenant=demo tenant_description="Demo tenant" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: demo 
+    tenant_description: "Demo tenant" 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
 - name: create demo user
-  keystone_user: tenant=demo user=demo password="demo" email="demo@example.com" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: demo 
+    user: demo 
+    password: demo 
+    email: demo@example.com 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
 - name: add role to demo user
-  keystone_user: tenant=demo role="_member_" user=demo email="demo@example.com" login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
-
-# automated monkey patch for https://bugs.launchpad.net/mos/+bug/1382570
-
-- name: check if patch is needed
-  shell: grep controllers.register_version /usr/lib/python2.7/dist-packages/keystone/service.py | wc -l
-  register: keystone_patch_needed
-
-- name: render patch template
-  template:
-    src: keystone-admin-service-patch.diff.j2
-    dest: /var/tmp/keystone-admin-service-patch.diff
-    owner: root
-    group: root
-    mode: 0644
-
-- name: patch keystone
-  shell: patch /usr/lib/python2.7/dist-packages/keystone/service.py < /var/tmp/keystone-admin-service-patch.diff
-  when: keystone_patch_needed.stdout == "2"
-
-- name: restart apache
-  service:
-    name: apache2
-    state: restarted
-  when: keystone_use_apache
+  keystone_user: 
+    tenant: demo 
+    role: _member_ 
+    user: demo 
+    email: demo@example.com 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true

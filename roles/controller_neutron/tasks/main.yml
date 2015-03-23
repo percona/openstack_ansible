@@ -33,18 +33,44 @@
     - restart neutron-server
 
 - name: create neutron service user
-  keystone_user: tenant=service user=neutron email="neutron@localhost" password={{ NEUTRON_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    user: neutron 
+    email: neutron@localhost 
+    password: "{{ NEUTRON_PASS }}" 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
 - name: add role to neutron service user
-  keystone_user: tenant=service role=admin user=neutron login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    role: admin 
+    user: neutron 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
-- service: name=neutron-server state=restarted
+- name: populate neutron database 
+  shell: 'su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade juno" neutron'
 
-- shell: source {{ admin_rc }} ; neutron network-list | grep service | awk '{print $2}'
-  register: networks_list
+- service: 
+    name: "{{ item }}" 
+    state: restarted
+  with_items:
+    - nova-api
+    - nova-scheduler
+    - nova-conductor
+    - neutron-server
+
 
 - name: sleep a bit
   shell: sleep 10
 
+# - shell: source {{ admin_rc }} ; neutron network-list | grep service | awk '{print $2}'
+#   register: networks_list
+
 - include: initial_networks.yml
-  when: networks_list.stdout.find("{{ EXT_NET_NAME }}") == -1
+  # when: networks_list.stdout.find("{{ EXT_NET_NAME }}") == -1

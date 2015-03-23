@@ -1,7 +1,9 @@
 ---
 
 - name: glance package
-  apt: pkg={{ item }} state=installed
+  apt: 
+    pkg: "{{ item }}" 
+    state: installed
   tags: glance
   with_items:
     - python-mysqldb
@@ -9,7 +11,9 @@
     - python-glanceclient
 
 - name: remove old sqlite db file
-  file: path=/var/lib/glance/glance.sqlite state=absent
+  file: 
+    path: /var/lib/glance/glance.sqlite 
+    state: absent
 
 - name: write the glance-api config file
   template: 
@@ -32,7 +36,12 @@
     - restart glance-api
 
 - name: write the glance-registry config file
-  template: src=glance-registry.conf.j2 dest=/etc/glance/glance-registry.conf owner=root group=root mode=0644
+  template: 
+    src: glance-registry.conf.j2 
+    dest: /etc/glance/glance-registry.conf 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart glance-registry
 
@@ -41,13 +50,32 @@
   when: db_init is defined
 
 - name: create glance service user
-  keystone_user: tenant=service user=glance email="glance@localhost" password={{ GLANCE_PASS }} login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    user: glance 
+    email: glance@localhost 
+    password: "{{ GLANCE_PASS }}" 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+  ignore_errors: true
 
-- service: name=glance-registry state=restarted
-- service: name=glance-api state=restarted
+- service: 
+    name: glance-registry 
+    state: restarted
+
+- service: 
+    name: glance-api 
+    state: restarted
 
 - name: add role to glance service user
-  keystone_user: tenant=service role=admin user=glance login_user=admin login_tenant_name=admin login_password={{ KEYSTONE_ADMIN_PASS }}
+  keystone_user: 
+    tenant: service 
+    role: admin 
+    user: glance 
+    login_user: admin 
+    login_tenant_name: admin 
+    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
 
 - name: get initial glance image
   shell: wget -O /var/tmp/cirros-0.3.2-x86_64-disk.img http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img

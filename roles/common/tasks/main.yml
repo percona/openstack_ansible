@@ -1,6 +1,14 @@
 ---
 # file: roles/common/tasks/main.yml
 
+- name: stop apparmor
+  service:
+    name: apparmor
+    state: stopped
+
+- name: teardown apparmor
+  shell: service apparmor teardown
+
 - name: percona apt key
   apt_key: 
     id: 1C4CBDCDCD2EFD2A 
@@ -16,6 +24,21 @@
   apt_repository: 
     repo: 'deb-src http://repo.percona.com/apt trusty main' 
     state: present
+
+- name: juno apt repository
+  template:
+    src: juno_apt.j2
+    dest: /etc/apt/sources.list.d/ubuntu-cloud-archive-juno-trusty.list
+    owner: root
+    group: root
+    mode: 0644
+
+- name: haproxy ppa apt repository
+  apt_repository:
+    repo: 'ppa:vbernat/haproxy-1.5'
+
+- name: run apt-get update after repos are added
+  shell: apt-get update
 
 - name: generate hosts file
   template:
@@ -40,6 +63,8 @@
     - python-software-properties
     - ntp
     - sysstat
+    - python-mysqldb
+    - percona-xtradb-cluster-client-5.6
 
 - name: start and enable ntp
   service: 
@@ -58,20 +83,6 @@
   apt:
     pkg: ubuntu-cloud-keyring
     state: installed
-  when: openstack_release == "juno"
-
-- name: juno apt repository
-  template:
-    src: juno_apt.j2
-    dest: /etc/apt/sources.list.d/ubuntu-cloud-archive-juno-trusty.list
-    owner: root
-    group: root
-    mode: 0644
-  when: openstack_release == "juno"
-
-- name: run apt-get update after juno repo is added
-  shell: apt-get update
-  when: openstack_release == "juno"
 
 - name: check what /bin/sh is
   shell: ls -la /bin/sh | awk '{print $NF}'

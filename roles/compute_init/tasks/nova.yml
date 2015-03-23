@@ -1,5 +1,7 @@
 - name: neutron compute node packages
-  apt: pkg={{ item }} state=installed
+  apt: 
+    pkg: "{{ item }}" 
+    state: installed
   tags: packages
   with_items:
     - neutron-plugin-ml2 
@@ -7,7 +9,9 @@
     - neutron-common
 
 - name: nova compute node packages
-  apt: pkg={{ item }} state=installed
+  apt: 
+    pkg: "{{ item }}" 
+    state: installed
   tags: packages
   with_items:
     - nova-compute-qemu
@@ -22,22 +26,42 @@
   when: kernel_stat.stdout.find('644') == -1 
 
 - name: update future kernel access mode
-  copy: src=statoverride dest=/etc/kernel/postinst.d/statoverride owner=root group=root mode=0744
+  copy: 
+    src: statoverride 
+    dest: /etc/kernel/postinst.d/statoverride 
+    owner: root 
+    group: root 
+    mode: 0744
   
 - name: write the neutron config file
-  template: src=neutron.conf.j2 dest=/etc/neutron/neutron.conf owner=root group=root mode=0644
+  template: 
+    src: neutron.conf.j2 
+    dest: /etc/neutron/neutron.conf 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart openvswitch-switch
     - restart neutron-plugin-openvswitch-agent
 
 - name: write the nova config file
-  template: src=nova.conf.j2 dest=/etc/nova/nova.conf owner=root group=root mode=0644
+  template: 
+    src: nova.conf.j2 
+    dest: /etc/nova/nova.conf 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart nova-compute
     - restart neutron-plugin-openvswitch-agent
 
 - name: write the ml2 config file
-  template: src=ml2_conf.ini.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini owner=root group=root mode=0644
+  template: 
+    src: ml2_conf.ini.j2 
+    dest: /etc/neutron/plugins/ml2/ml2_conf.ini 
+    owner: root 
+    group: root 
+    mode: 0644
   notify:
     - restart openvswitch-switch
     
@@ -50,4 +74,6 @@
   when: ovs_bridges_list.stdout.find('br-int') == -1
 
 - name: remove old sqlite db file
-  file: path=/var/lib/nova/nova.sqlite state=absent
+  file: 
+    path: /var/lib/nova/nova.sqlite 
+    state: absent
