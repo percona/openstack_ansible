@@ -37,8 +37,11 @@
   apt_repository:
     repo: 'ppa:vbernat/haproxy-1.5'
 
-- name: run apt-get update after repos are added
-  shell: apt-get update
+- name: update the packages
+  apt:
+    upgrade: dist
+    update_cache: yes
+    force: yes
 
 - name: generate hosts file
   template:

@@ -4,6 +4,7 @@
   apt: 
     pkg: "{{ item }}" 
     state: installed
+    force: yes
   tags: nova
   with_items:
     - python-mysqldb
@@ -36,27 +37,7 @@
 - name: nova db sync
   shell: su -s /bin/sh -c "nova-manage db sync" nova
   when: db_init is defined
-
-- name: create nova service user
-  keystone_user: 
-    tenant: service 
-    user: nova 
-    email: "nova@localhost" 
-    password: "{{ NOVA_PASS }}" 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
-- name: add role to nova service user
-  keystone_user: 
-    tenant: service 
-    role: admin 
-    user: nova 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-
+    
 - name: check for ssh keypair
   shell: source {{ demo_rc }} ; nova keypair-list | grep demo-key
   register: nova_keypair_list_out

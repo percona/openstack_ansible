@@ -19,6 +19,7 @@
   apt: 
     pkg: "{{ item }}"
     state: present
+    force: yes
   tags: neutron_network
   with_items:
     - neutron-plugin-ml2 

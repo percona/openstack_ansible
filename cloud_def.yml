@@ -5,11 +5,11 @@ aws_image: ami-f6b11181
 database:
   type: pxc
   instance_type: m3.medium
-  num_databases: 3
+  num_databases: 1
 
 controller:
   instance_type: m3.medium
-  num_controllers: 1
+  num_controllers: 3
 
 network:
   instance_type: m3.medium
@@ -17,7 +17,7 @@ network:
 
 compute:
   instance_type: m3.medium
-  num_computes: 2
+  num_computes: 1
 
 benchmark:
   instance_type: m3.medium

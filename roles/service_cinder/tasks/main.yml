@@ -2,9 +2,11 @@
   apt: 
     pkg: "{{ item }}" 
     state: "installed"
+    force: yes
   tags: packages
   with_items:
     - lvm2
+    - cinder-volume
 
 - name: Make sure xvdb is unmounted
   shell: umount -l /dev/xvdb
@@ -36,11 +38,6 @@
     owner: root 
     group: root
     mode: 0644
-
-- name: install cinder-volume
-  apt: 
-    pkg: cinder-volume 
-    state: installed
 
 - name: create cinder.conf
   template: 

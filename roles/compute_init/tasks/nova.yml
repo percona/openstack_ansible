@@ -2,6 +2,7 @@
   apt: 
     pkg: "{{ item }}" 
     state: installed
+    force: yes
   tags: packages
   with_items:
     - neutron-plugin-ml2 

@@ -2,6 +2,7 @@
   apt: 
     pkg: rabbitmq-server 
     state: installed
+    force: yes
   
 - name: Start rabbitmq-server
   service: 

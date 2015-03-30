@@ -9,12 +9,23 @@ then
   keystone role-create --name=admin
   keystone tenant-create --name=admin --description="Admin Tenant"
   keystone user-role-add --user=admin --tenant=admin --role=admin
-  keystone role-create --name _member_
-  keystone user-role-add --user=admin --role=_member_ --tenant=admin
 fi
 
 if [[ k`keystone service-list` == 'k' ]]
 then
+  keystone tenant-create --name demo --description "Demo Tenant"
+  keystone user-create --name demo --tenant demo --pass demo --email demo@localhost
+  keystone tenant-create --name service --description "Service Tenant"
+
+  keystone user-create --name glance --pass {{ GLANCE_PASS }} --email glance@localhost
+  keystone user-role-add --user glance --tenant service --role admin
+  keystone user-create --name nova --pass {{ NOVA_PASS }} --email nova@localhost
+  keystone user-role-add --user nova --tenant service --role admin
+  keystone user-create --name neutron --pass {{ NEUTRON_PASS }} --email neutron@localhost
+  keystone user-role-add --user neutron --tenant service --role admin
+  keystone user-create --name cinder --pass {{ CINDER_PASS }} --email cinder@localhost
+  keystone user-role-add --user cinder --tenant service --role admin
+
   SERVICE_ID=`keystone service-create --name=keystone --type=identity --description="OpenStack Identity" | awk '/ id / {print $4}'`
   keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ api_proxy_host }}:5000/v2.0 --internalurl=http://{{ api_proxy_host }}:5000/v2.0 --adminurl=http://{{ api_proxy_host }}:35357/v2.0
   SERVICE_ID=`keystone service-create --name=nova --type=compute --description="OpenStack Compute" | awk '/ id / {print $4}'`
@@ -31,4 +42,6 @@ then
   keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ api_proxy_host }}:8000/v1 --internalurl=http://{{ api_proxy_host }}:8000/v1 --adminurl=http://{{ api_proxy_host }}:8000/v1
   SERVICE_ID=`keystone service-create --name=neutron --type=network --description="OpenStack Network" | awk '/ id / {print $4}'`
   keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ api_proxy_host }}:9696 --internalurl=http://{{ api_proxy_host }}:9696 --adminurl=http://{{ api_proxy_host }}:9696
+
+
 fi

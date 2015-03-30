@@ -7,4 +7,3 @@
     - compute_nova
     - compute_neutron
     - service_cinder
-#    - compute_ceilometer

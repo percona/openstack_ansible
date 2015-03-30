@@ -2,6 +2,7 @@
   apt: 
     pkg: "{{ item }}" 
     state: installed
+    force: yes
   tags: packages
   with_items:
     - python-mysqldb
@@ -27,6 +28,11 @@
     mode: 0644
   notify:
     - restart nova-compute
+
+- name: start nova compute
+  service:
+    name: nova-compute
+    state: started
 
 - name: remove old sqlite db file
   file: 

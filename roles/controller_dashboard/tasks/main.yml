@@ -1,5 +1,8 @@
 - name: install apache packages
-  apt: pkg={{ item }} state=installed
+  apt: 
+    pkg: "{{ item }}" 
+    state: installed
+    force: yes
   tags: packages
   with_items:
     - apache2 

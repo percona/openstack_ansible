@@ -4,6 +4,7 @@
   apt:
     pkg: "{{ item }}"
     state: installed
+    force: yes
   with_items:
     - haproxy
     - socat

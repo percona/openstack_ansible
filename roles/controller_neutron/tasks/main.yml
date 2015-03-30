@@ -1,16 +1,15 @@
 ---
 
 - name: neutron package
-  apt: pkg={{ item }} state=installed
+  apt: 
+    pkg: "{{ item }}" 
+    state: installed
+    force: yes
   tags: neutron
   with_items:
     - python-mysqldb
     - neutron-server
     - neutron-plugin-ml2
-
-- name: gather keystone tenant id
-  shell: source {{ admin_rc }} ; keystone tenant-list | grep service | awk '{print $2}'
-  register: keystone_service_tenant_id
 
 - name: write the neutron config file
   template: 
@@ -32,27 +31,6 @@
   notify:
     - restart neutron-server
 
-- name: create neutron service user
-  keystone_user: 
-    tenant: service 
-    user: neutron 
-    email: neutron@localhost 
-    password: "{{ NEUTRON_PASS }}" 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
-- name: add role to neutron service user
-  keystone_user: 
-    tenant: service 
-    role: admin 
-    user: neutron 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
 - name: populate neutron database 
   shell: 'su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade juno" neutron'
 
@@ -65,12 +43,8 @@
     - nova-conductor
     - neutron-server
 
-
 - name: sleep a bit
   shell: sleep 10
-
-# - shell: source {{ admin_rc }} ; neutron network-list | grep service | awk '{print $2}'
-#   register: networks_list
 
 - include: initial_networks.yml
   # when: networks_list.stdout.find("{{ EXT_NET_NAME }}") == -1

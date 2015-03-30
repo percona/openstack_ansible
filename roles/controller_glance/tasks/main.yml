@@ -4,6 +4,7 @@
   apt: 
     pkg: "{{ item }}" 
     state: installed
+    force: yes
   tags: glance
   with_items:
     - python-mysqldb
@@ -49,17 +50,6 @@
   shell: su -s /bin/sh -c "glance-manage db_sync" glance
   when: db_init is defined
 
-- name: create glance service user
-  keystone_user: 
-    tenant: service 
-    user: glance 
-    email: glance@localhost 
-    password: "{{ GLANCE_PASS }}" 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
 - service: 
     name: glance-registry 
     state: restarted
@@ -68,14 +58,8 @@
     name: glance-api 
     state: restarted
 
-- name: add role to glance service user
-  keystone_user: 
-    tenant: service 
-    role: admin 
-    user: glance 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
+- wait_for:
+    port: 9292
 
 - name: get initial glance image
   shell: wget -O /var/tmp/cirros-0.3.2-x86_64-disk.img http://cdn.download.cirros-cloud.net/0.3.2/cirros-0.3.2-x86_64-disk.img

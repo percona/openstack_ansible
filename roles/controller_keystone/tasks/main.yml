@@ -4,6 +4,7 @@
   apt: 
     pkg: "{{ item }}" 
     state: present
+    force: yes
   with_items:
     - keystone
     - python-keystone
@@ -96,7 +97,12 @@
     group: root 
     mode: 0755
 
-# This creates the Keystone admin tenant, role and user, and all the service endpoints
+- name: wait for keystone to become available  
+  wait_for:
+    port: 35357
+
+# This initializes keystone with all users need by all the services in this playbook
+# It only runs on initialization when keystone user-list is empty
 - name: initialize keystone
   shell: /var/tmp/keystone_init.sh
   when: db_init is defined
@@ -117,42 +123,6 @@
     group: root 
     mode: 0600
 
-- name: create service tenant
-  keystone_user: 
-    tenant: service 
-    tenant_description: "Service tenant" 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
-- name: create demo tenant
-  keystone_user: 
-    tenant: demo 
-    tenant_description: "Demo tenant" 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
-- name: create demo user
-  keystone_user: 
-    tenant: demo 
-    user: demo 
-    password: demo 
-    email: demo@example.com 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
-
-- name: add role to demo user
-  keystone_user: 
-    tenant: demo 
-    role: _member_ 
-    user: demo 
-    email: demo@example.com 
-    login_user: admin 
-    login_tenant_name: admin 
-    login_password: "{{ KEYSTONE_ADMIN_PASS }}"
-  ignore_errors: true
+- name: get service tenant from keystone
+  shell: . {{ admin_rc }} && keystone tenant-list | awk '/service/ {print $2}'
+  register: keystone_service_tenant_id
