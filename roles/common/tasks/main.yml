@@ -51,6 +51,14 @@
     group: root
     mode: 0644
 
+- name: generate limits.conf
+  template:
+    src: limits.conf.j2
+    dest: /etc/security/limits.conf
+    owner: root
+    group: root
+    mode: 0644
+
 # All passwords
 - include_vars: group_vars/openstack_password.yml
 

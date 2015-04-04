@@ -10,7 +10,10 @@
                 },
                 "nics": [ {
                     "net-id": "{{ demo_net_id.stdout }}"
-                          } ]
+                          } ],
+                "security-group": {
+                    "id": "{{ nova_security_group.stdout }}"
+                }
             },
             "runner": {
                 "type": "constant",

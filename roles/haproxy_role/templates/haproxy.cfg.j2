@@ -44,7 +44,7 @@ backend pxc-back
     option httpchk
     default-server on-marked-down shutdown-sessions on-marked-up shutdown-backup-sessions
 {% for db_ip in haproxy['pxc_ips'] %}
-    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 1000 rise 2 fall 2
+    server pxc{{ loop.index }} {{ db_ip }}:3306 maxconn 20000
 {% endfor %}
  
 backend pxc-onenode-back
@@ -53,7 +53,7 @@ backend pxc-onenode-back
     option httpchk
     default-server on-marked-down shutdown-sessions on-marked-up shutdown-backup-sessions
 {% for db_ip in haproxy['pxc_ips'] %}
-    server pxc{{ loop.index }} {{ db_ip }}:3306 check port 9200 inter 1000 rise 2 fall 2{% if not loop.first %} backup{% endif %}
+    server pxc{{ loop.index }} {{ db_ip }}:3306 maxconn 20000 {% if not loop.first %} backup{% endif %}
 
 {% endfor %}
 {% endif %}
@@ -73,7 +73,7 @@ backend {{ name }}-back
     cookie SRV_ID prefix
     balance roundrobin
 {% for controller_ip in haproxy['controller_ips'] %}
-    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }} check
+    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }} maxconn 20000
 {% endfor %}
 
 {% endfor %}

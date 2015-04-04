@@ -92,6 +92,12 @@ backend = sqlalchemy
 # Deprecated group/name - [DATABASE]/sql_connection
 # Deprecated group/name - [sql]/connection
 connection = mysql://glance:{{ GLANCE_DBPASS }}@{{ database_host }}/glance
+min_pool_size=1
+max_pool_size=20
+max_retries=1000
+retry_interval=1
+pool_timeout=5
+use_db_reconnect=true
 
 # The SQL mode to be used for MySQL sessions. This option,
 # including the default, overrides any server-set SQL mode. To

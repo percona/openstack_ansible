@@ -10,12 +10,15 @@
                 },
                 "nics": [ {
                     "net-id": "{{ demo_net_id.stdout }}"
-                          } ]
+                          } ],
+                "security-group": {
+                    "id": "{{ nova_security_group.stdout }}"
+                }
             },
             "runner": {
                 "type": "constant",
-                "times": 200,
-                "concurrency": 10
+                "times": 1000,
+                "concurrency": 128
             },
             "context": {
                 "users": {
@@ -32,6 +35,46 @@
                     "port": -1
                   }
                 }
+            }
+        }
+    ],
+        "NovaServers.boot_and_delete_server": [
+        {
+            "args": {
+                "flavor": {
+                    "name": "m1.tiny"
+                },
+                "image": {
+                    "name": "cirros-0.3.2-x86_64"
+                },
+                "nics": [ {
+                    "net-id": "{{ demo_net_id.stdout }}"
+                          } ],
+                "security-group": {
+                    "id": "{{ nova_security_group.stdout }}"
+                }
+            },
+            "runner": {
+                "type": "constant",
+                "times": 1000,
+                "concurrency": 128
+            },
+            "context": {
+                "users": {
+                    "tenants": 10,
+                    "users_per_tenant": 10
+                },
+                "quotas": {
+                  "nova": {
+                    "instances": -1,
+                    "cores": -1,
+                    "ram": -1
+                  },
+                  "neutron": {
+                    "port": -1
+                  }
+                }
+
             }
         }
     ]

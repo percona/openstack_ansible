@@ -34,9 +34,6 @@ admin_port=45357
 # (integer value)
 public_port=15000
 
-admin_workers = 64
-public_workers = 64
-
 # The base public endpoint URL for keystone that are
 # advertised to clients (NOTE: this does NOT affect how
 # keystone listens for connections) (string value).
@@ -652,7 +649,7 @@ min_pool_size=1
 # (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_pool_size
 # Deprecated group/name - [DATABASE]/sql_max_pool_size
-max_pool_size=20
+max_pool_size=130
 
 # Maximum db connection retries during startup. (setting -1
 # implies an infinite retry count) (integer value)
@@ -664,7 +661,7 @@ max_retries=1000
 # (integer value)
 # Deprecated group/name - [DEFAULT]/sql_retry_interval
 # Deprecated group/name - [DATABASE]/reconnect_interval
-retry_interval=1
+#retry_interval=1
 
 # If set, use this value for max_overflow with sqlalchemy
 # (integer value)
@@ -692,7 +689,7 @@ pool_timeout=5
 use_db_reconnect=true
 
 # seconds between db connection retries (integer value)
-#db_retry_interval=1
+db_retry_interval=1
 
 # Whether to increase interval between db connection retries,
 # up to db_max_retry_interval (boolean value)
@@ -704,7 +701,7 @@ use_db_reconnect=true
 
 # maximum db connection retries before error is raised.
 # (setting -1 implies an infinite retry count) (integer value)
-#db_max_retries=20
+db_max_retries=10
 
 
 [ec2]

@@ -72,6 +72,10 @@
   shell: rally deployment list | awk '/existing/ {print $2}'
   register: rally_deployment_uuid
 
+- name: get nova security group id 
+  shell: source {{ admin_rc }} && nova secgroup-list | grep -v -- "---" | tail -1 | awk '{print $2}'
+  register: nova_security_group
+
 - name: execute rally deployment check
   shell: rally deployment check 
 

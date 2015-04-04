@@ -27,6 +27,13 @@ admin_password = {{ NEUTRON_PASS }}
 signing_dir = $state_path/keystone-signing
 
 [database]
+connection = mysql://neutron:{{ NEUTRON_DBPASS }}@{{ database_host }}/neutron
+min_pool_size=1
+max_pool_size=130
+max_retries=1000
+retry_interval=1
+pool_timeout=5
+use_db_reconnect=true
 
 [service_providers]
 service_provider=LOADBALANCER:Haproxy:neutron.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
