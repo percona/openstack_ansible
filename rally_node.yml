@@ -2,5 +2,6 @@
 - hosts: benchmark
   user: ubuntu
   roles:
-    - haproxy_role
+    - common
+    - haproxy_nocheck
     - rally_node

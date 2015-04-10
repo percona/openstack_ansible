@@ -49,7 +49,7 @@ notification_driver = ceilometer.compute.nova_notifier
 
 [database]
 # The SQLAlchemy connection string used to connect to the database
-connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_host }}/nova
+connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_nova }}/nova
  
 [keystone_authtoken]
 auth_uri = http://{{ api_proxy_host }}:{{ keystone_user_service_port }}

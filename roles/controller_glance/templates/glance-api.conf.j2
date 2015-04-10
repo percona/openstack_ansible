@@ -566,7 +566,7 @@ backend = sqlalchemy
 # Deprecated group/name - [DEFAULT]/sql_connection
 # Deprecated group/name - [DATABASE]/sql_connection
 # Deprecated group/name - [sql]/connection
-connection = mysql://glance:{{ GLANCE_DBPASS }}@{{ database_host }}/glance
+connection = mysql://glance:{{ GLANCE_DBPASS }}@{{ database_glance }}/glance
 min_pool_size=1
 max_pool_size=20
 max_retries=1000

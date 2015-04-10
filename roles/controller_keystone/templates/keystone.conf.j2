@@ -623,7 +623,7 @@ log_file=/var/log/keystone/keystone.log
 # Deprecated group/name - [DATABASE]/sql_connection
 # Deprecated group/name - [sql]/connection
 #connection=<None>
-connection = mysql://keystone:{{ KEYSTONE_DBPASS }}@{{ database_host }}/keystone
+connection = mysql://keystone:{{ KEYSTONE_DBPASS }}@{{ database_keystone }}/keystone
 
 # The SQL mode to be used for MySQL sessions. This option,
 # including the default, overrides any server-set SQL mode. To

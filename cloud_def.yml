@@ -9,7 +9,7 @@ database:
 
 controller:
   instance_type: c3.8xlarge
-  num_controllers: 2
+  num_controllers: 4
 
 network:
   instance_type: c3.8xlarge
@@ -17,7 +17,7 @@ network:
 
 compute:
   instance_type: m3.medium
-  num_computes: 3
+  num_computes: 20
 
 benchmark:
   instance_type: c3.8xlarge

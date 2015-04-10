@@ -105,3 +105,54 @@
 
 - name: make rally use the deployment
   shell: rally use deployment --uuid {{ rally_deployment_uuid.stdout }}
+
+- name: create ssh directory
+  file:
+    name: /home/ubuntu/.ssh
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0700
+
+- name: render ssh config
+  template:
+    src: ssh_config.j2
+    dest: /home/ubuntu/.ssh/config
+    owner: ubuntu
+    group: ubuntu
+    mode: 0664
+
+# TODO change this
+- name: render rally patch
+  template:
+    src: rally.patch.j2
+    dest: /root/rally.patch
+    owner: root
+    group: root
+    mode: 0644
+
+- name: check already patched file
+  stat:
+    path: /var/tmp/rally_patched_already
+  register: rally_patched
+
+# Removes cleanup from the used scenarios, there is no command line option to do this
+- name: patch rally 
+  shell: patch -u -p0 /usr/local/lib/python2.7/dist-packages/rally/benchmark/scenarios/nova/servers.py < /root/rally.patch 
+  when: rally_patched.stat.exists == False
+
+- name: touch patched already file
+  file:
+    name: /var/tmp/rally_patched_already
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+
+- name: openstack_benchmark.sh
+  template:
+    src: openstack_benchmark.sh.j2
+    dest: /home/ubuntu/openstack_benchmark.sh
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755

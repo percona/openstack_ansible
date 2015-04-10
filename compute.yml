@@ -7,3 +7,4 @@
     - compute_nova
     - compute_neutron
     - service_cinder
+    - haproxy_nocheck

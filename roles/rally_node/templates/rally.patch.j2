@@ -1,0 +1,19 @@
+--- /usr/local/lib/python2.7/dist-packages/rally/benchmark/scenarios/nova/servers.py.orig 2015-04-10 14:39:15.415937049 +0000
++++ /usr/local/lib/python2.7/dist-packages/rally/benchmark/scenarios/nova/servers.py  2015-04-10 14:39:52.539204126 +0000
+@@ -82,7 +82,7 @@ class NovaServers(utils.NovaScenario,
+     @validation.image_valid_on_flavor("flavor", "image")
+     @validation.required_services(consts.Service.NOVA)
+     @validation.required_openstack(users=True)
+-    @base.scenario(context={"cleanup": ["nova"]})
++    @base.scenario(context={"cleanup": [""]})
+     def boot_and_delete_server(self, image, flavor,
+                                min_sleep=0, max_sleep=0,
+                                force_delete=False, **kwargs):
+@@ -201,7 +201,7 @@ class NovaServers(utils.NovaScenario,
+     @validation.image_valid_on_flavor("flavor", "image")
+     @validation.required_services(consts.Service.NOVA)
+     @validation.required_openstack(users=True)
+-    @base.scenario(context={"cleanup": ["nova"]})
++    @base.scenario(context={"cleanup": [""]})
+     def boot_server(self, image, flavor, auto_assign_nic=False, **kwargs):
+         """Boot a server.

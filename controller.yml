@@ -9,3 +9,4 @@
     - controller_nova
     - controller_neutron
     - controller_dashboard
+    - haproxy_nocheck

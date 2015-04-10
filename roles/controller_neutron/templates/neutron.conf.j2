@@ -37,7 +37,7 @@ admin_password = {{ NEUTRON_PASS }}
 #root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
 
 [database]
-connection = mysql://neutron:{{ NEUTRON_DBPASS }}@{{ database_host }}/neutron
+connection = mysql://neutron:{{ NEUTRON_DBPASS }}@{{ database_neutron }}/neutron
 min_pool_size=1
 max_pool_size=130
 max_retries=1000

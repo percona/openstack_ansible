@@ -22,7 +22,7 @@ notification_driver = cinder.openstack.common.notifier.rpc_notifier
 osapi_volume_listen_port = 18776
 
 [database]
-connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_host }}/cinder
+connection = mysql://cinder:{{ CINDER_DBPASS }}@{{ database_cinder }}/cinder
 min_pool_size=1
 max_pool_size=20
 max_retries=1000

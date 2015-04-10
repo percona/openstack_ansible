@@ -20,7 +20,11 @@ DEMO_GATEWAY: 172.16.0.1
 DEMO_CIDR: 172.16.0.0/12
 DEMO_ROUTER: demo-router
 
-database_host: 127.0.0.1:3306
+database_keystone: 127.0.0.1:3306
+database_glance: 127.0.0.1:3306
+database_nova: 127.0.0.1:3306
+database_neutron: 127.0.0.1:3306
+database_cinder: 127.0.0.1:3306
 rabbit_host: network
 api_proxy_host: 127.0.0.1
 keystone_user_service_port: 5000

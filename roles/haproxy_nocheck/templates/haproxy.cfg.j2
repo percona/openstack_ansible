@@ -73,7 +73,7 @@ backend {{ name }}-back
     cookie SRV_ID prefix
     balance roundrobin
 {% for controller_ip in haproxy['controller_ips'] %}
-    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }} maxconn 20000 check
+    server controller{{ loop.index }} {{ controller_ip }}:{{ serviceport }} maxconn 20000
 {% endfor %}
 
 {% endfor %}

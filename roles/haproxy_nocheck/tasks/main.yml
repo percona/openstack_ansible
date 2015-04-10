@@ -1,0 +1,33 @@
+--- 
+
+- name: install haproxy package
+  apt:
+    pkg: "{{ item }}"
+    state: installed
+    force: yes
+  with_items:
+    - haproxy
+    - socat
+
+- name: render haproxy configuration file
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart haproxy
+
+- name: render haproxy defaults
+  template:
+    src: haproxy_default.j2
+    dest: /etc/default/haproxy
+    owner: root
+    group: root
+    mode: 0644
+
+- name: start haproxy
+  service:
+    name: haproxy
+    state: restarted

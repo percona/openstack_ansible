@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export OS_SERVICE_TOKEN="{{ KEYSTONE_ADMIN_TOKEN }}"
-export OS_SERVICE_ENDPOINT=http://{{ api_proxy_host }}:35357/v2.0
+export OS_SERVICE_ENDPOINT=http://127.0.0.1:45357/v2.0
 
 if [[ k`keystone user-list` == 'k' ]]
 then
@@ -42,6 +42,4 @@ then
   keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ api_proxy_host }}:8000/v1 --internalurl=http://{{ api_proxy_host }}:8000/v1 --adminurl=http://{{ api_proxy_host }}:8000/v1
   SERVICE_ID=`keystone service-create --name=neutron --type=network --description="OpenStack Network" | awk '/ id / {print $4}'`
   keystone endpoint-create --service-id=$SERVICE_ID --publicurl=http://{{ api_proxy_host }}:9696 --internalurl=http://{{ api_proxy_host }}:9696 --adminurl=http://{{ api_proxy_host }}:9696
-
-
 fi

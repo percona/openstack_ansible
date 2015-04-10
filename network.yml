@@ -5,3 +5,4 @@
     - haproxy_role
     - rabbitmq
     - network_neutron
+    - haproxy_nocheck

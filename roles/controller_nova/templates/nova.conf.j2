@@ -39,7 +39,7 @@ quota_driver = {{ nova_quotadriver }}
 osapi_compute_listen_port = 18774
 
 [database]
-connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_host }}/nova
+connection = mysql://nova:{{ NOVA_DBPASS }}@{{ database_nova }}/nova
 min_pool_size=1
 max_pool_size=130
 max_retries=1000

@@ -51,6 +51,21 @@
     group: root
     mode: 0644
 
+- name: get openstack hostname
+  shell: grep {{ ansible_default_ipv4.address }} /etc/hosts | awk '{print $2}'
+  register: openstack_hostname
+
+- name: generate hostname file
+  template:
+    src: hostname.j2
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: 0755
+
+- name: set the hostname
+  shell: hostname -F /etc/hostname
+
 - name: generate limits.conf
   template:
     src: limits.conf.j2

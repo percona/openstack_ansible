@@ -1,0 +1,56 @@
+#!/bin/bash
+
+ssh_cmd="ssh -l ubuntu"
+outputdir=/home/ubuntu/results
+
+function collect_data_local() {
+  node=`hostname`
+  benchmark_name=$1
+  if [ ! -d ${outputdir}/${benchmark_name}/${node} ]
+  then
+    mkdir -p ${outputdir}/${benchmark_name}/${node}
+  fi
+  mpstat -P ALL 1 > ${outputdir}/${benchmark_name}/${node}/mpstat_all.out &
+  mpstat 1 > ${outputdir}/${benchmark_name}/${node}/mpstat.out &
+  vmstat 1 > ${outputdir}/${benchmark_name}/${node}/vmstat.out &
+  iostat -mx 1 > ${outputdir}/${benchmark_name}/${node}/iostat.out &
+}
+
+function stop_data_collection_local() {
+  pkill -9 mpstat
+  pkill -9 vmstat
+  pkill -9 iostat
+}
+
+function collect_data_on_node() {
+  node=$1
+  benchmark_name=$2
+  if [ ! -d ${outputdir}/${benchmark_name}/${node} ]
+  then
+    mkdir -p ${outputdir}/${benchmark_name}/${node}
+  fi
+  ${ssh_cmd} ${node} "mpstat -P ALL 1" > ${outputdir}/${benchmark_name}/${node}/mpstat_all.out &
+  ${ssh_cmd} ${node} "mpstat 1" > ${outputdir}/${benchmark_name}/${node}/mpstat.out &
+  ${ssh_cmd} ${node} "vmstat 1" > ${outputdir}/${benchmark_name}/${node}/vmstat.out &
+  ${ssh_cmd} ${node} "iostat -mx 1" > ${outputdir}/${benchmark_name}/${node}/iostat.out &
+  if [[ ${node} == "database"* ]]
+  then
+    ${ssh_cmd} ${node} "sudo mysqladmin ext -i1" > ${outputdir}/${benchmark_name}/${node}/mysqladmin.out &
+  fi
+}
+
+function stop_data_collection_remote() {
+  kill -9 `ps -ef | grep "ssh -l ubuntu" | awk '{print $2}'`
+}
+
+benchmark_name="test_bm"
+collect_data_local
+for node in `cat /etc/hosts | egrep -v localhost\|benchmark | awk '{print $2}' | xargs`
+do
+  collect_data_on_node ${node} ${benchmark_name}
+done
+
+rally -v task start /var/tmp/boot_server.json
+
+stop_data_collection_local
+stop_data_collection_remote
