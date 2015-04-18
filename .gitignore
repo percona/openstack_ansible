@@ -5,3 +5,5 @@ roles/aws_create
 roles/aws_destroy
 TODO
 group_vars/site_def.yml
+roles/common/templates/hosts.j2
+cloud_def.yml

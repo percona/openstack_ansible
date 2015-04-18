@@ -14,9 +14,16 @@ You need to set up in aws access in .boto.
 
 Set up instance details in roles/aws/vars/main.yml
 
+Create the instances:
+```
+python generate_aws_yml.py
+```
+
+This will generate the playbooks for creating and tearing down the aws instances used.
+
 In order to create instances do:
 ```
-ansible-playbook -i aws_inventory.yml aws.yml
+ansible-playbook -i aws_inventory.yml aws_create.yml
 ```
 
 This will create the hosts file.
@@ -28,3 +35,9 @@ ansible-playbook -u ubuntu -i hosts site.yml
 ```
 
 Check hosts file or the AWS console for the machines.
+
+To destroy the machines:
+```
+ansible-playbook -i aws_inventory aws_destroy.yml
+```
+
