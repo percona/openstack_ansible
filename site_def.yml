@@ -37,8 +37,6 @@ nova_quotadriver: nova.quota.DbQuotaDriver
 admin_rc: /root/.openstack_admin.rc
 demo_rc: /root/.openstack_demo.rc
 
-keystone_use_apache: true
-
 haproxy:
   ha_pxc: true
   ha_controller: true
