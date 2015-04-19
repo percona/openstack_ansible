@@ -20,11 +20,6 @@
     repo: 'deb http://repo.percona.com/apt trusty main' 
     state: present
 
-- name: percona apt repository src
-  apt_repository: 
-    repo: 'deb-src http://repo.percona.com/apt trusty main' 
-    state: present
-
 - name: juno apt repository
   template:
     src: juno_apt.j2
