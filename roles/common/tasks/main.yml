@@ -77,7 +77,7 @@
 
 - name: Add them to a file
   assemble: 
-    src: files/additional_ssh_keys/
+    src: additional_ssh_keys/
     dest: /home/ubuntu/.ssh/extra_ssh_keys
     remote_src: False
   always_run: yes
