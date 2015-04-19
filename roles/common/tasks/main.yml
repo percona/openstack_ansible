@@ -75,20 +75,23 @@
 # Site variables
 - include_vars: group_vars/site_def.yml
 
-- name: Add them to a file
+- name: add extra ssh keys to a file
   assemble: 
     src: additional_ssh_keys/
     dest: /home/ubuntu/.ssh/extra_ssh_keys
     remote_src: False
   always_run: yes
 
+- name: obtain extra ssh keys
+  shell: cat /home/ubuntu/.ssh/extra_ssh_keys
+  register: extra_ssh_keys
+
 - name: add additional ssh keys
   lineinfile:
     dest: /home/ubuntu/.ssh/authorized_keys
     line: "{{ item }}"
     state: present
-  when: item
-  with_lines: cat /home/ubuntu/.ssh/extra_ssh_keys
+  with_items: extra_ssh_keys.stdout_lines
 
 - name: install packages
   apt:
