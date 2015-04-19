@@ -20,11 +20,6 @@
     repo: 'deb http://repo.percona.com/apt trusty main' 
     state: present
 
-- name: percona apt repository src
-  apt_repository: 
-    repo: 'deb-src http://repo.percona.com/apt trusty main' 
-    state: present
-
 - name: juno apt repository
   template:
     src: juno_apt.j2
@@ -79,7 +74,21 @@
 
 # Site variables
 - include_vars: group_vars/site_def.yml
-- include_vars: group_vars/additional_ssh_keys.yml
+
+- name: Add them to a file
+  assemble: 
+    src: files/additional_ssh_keys/
+    dest: /home/ubuntu/.ssh/extra_ssh_keys
+    remote_src: False
+  always_run: yes
+
+- name: add additional ssh keys
+  lineinfile:
+    dest: /home/ubuntu/.ssh/authorized_keys
+    line: "{{ item }}"
+    state: present
+  when: item
+  with_lines: cat /home/ubuntu/.ssh/extra_ssh_keys
 
 - name: install packages
   apt:
@@ -97,13 +106,6 @@
     name: ntp 
     state: running 
     enabled: yes
-
-- name: add additional ssh keys
-  lineinfile:
-    dest: /home/ubuntu/.ssh/authorized_keys
-    line: "{{ item }}"
-    state: present
-  with_items: additional_ssh_keys
 
 - name: install cloud archives key
   apt:
