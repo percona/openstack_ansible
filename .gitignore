@@ -7,3 +7,4 @@ TODO
 group_vars/site_def.yml
 roles/common/templates/hosts.j2
 cloud_def.yml
+.vagrant
